@@ -71,7 +71,7 @@ button { font: inherit; cursor: pointer; }
   opacity: .8;
 }
 
-.half-inner { position: relative; z-index: 2; text-align: center; padding: 2rem; max-width: 30rem; }
+.half-inner { position: relative; z-index: 2; text-align: center; padding: 4rem 2rem 2rem; max-width: 26rem; }
 .half-kicker { font-size: 0.85rem; letter-spacing: 0.25em; margin-bottom: 1.2rem; }
 .half-tech .half-kicker { color: var(--tech-accent); }
 .half-arts .half-kicker { color: var(--arts-accent); letter-spacing: 0.12em; }
@@ -84,8 +84,11 @@ button { font: inherit; cursor: pointer; }
 .half-arts .half-enter { color: var(--arts-accent); }
 
 .landing-center {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  z-index: 5; text-align: center; pointer-events: none; width: min(90vw, 34rem);
+  position: absolute; left: 50%; top: clamp(1.2rem, 5vh, 3.5rem); transform: translateX(-50%);
+  z-index: 5; text-align: center; pointer-events: none; width: min(92vw, 34rem);
+  padding: 1.3rem 2rem 1.5rem; border-radius: 18px;
+  background: #0c090edd; backdrop-filter: blur(14px);
+  border: 1px solid #ffffff14; box-shadow: 0 30px 90px #000c;
 }
 .lc-eyebrow { font-size: .78rem; letter-spacing: .3em; text-transform: uppercase; opacity: .7; margin-bottom: .6rem; }
 .lc-name {
@@ -283,8 +286,11 @@ body[data-view="arts"] .page-foot { background: var(--arts-bg2); color: var(--ar
   .landing { flex-direction: column; }
   .half { min-height: 50vh; }
   .half:hover, .half:focus-visible { flex: 1.25; }
+  /* on mobile the name becomes a band between the two halves */
+  .landing-center { position: static; transform: none; width: 100%; border-radius: 0; border-left: 0; border-right: 0; order: 0; }
+  .half-tech { order: -1; } .half-arts { order: 1; }
+  .half-inner { padding-top: 2rem; }
   .half-arts::after { inset: 0 0 auto 0; width: auto; height: 12px; background: repeating-linear-gradient(90deg, var(--arts-red), #6d1418 7px, var(--arts-red) 14px); }
-  .landing-center { position: absolute; }
   .hero-tech { grid-template-columns: 1fr; }
   .playbills { grid-template-columns: 1fr; }
   .playbill.featured { flex-direction: column; }
