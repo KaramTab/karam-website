@@ -13,7 +13,9 @@ const PROFILE = {
   instagram: "https://www.instagram.com/karamtabba/",
   cloudjoi: "https://www.cloudjoi.com/profiles/116861",
   fiverr: "https://www.fiverr.com/users/karamtabba",
+  youtube: "https://www.youtube.com/user/karamtabba",
   location: "Kuala Lumpur, Malaysia",
+  born: "1994-10-11", // used to auto-compute age on the comp card
 };
 
 /* ---------- TECH SIDE ---------- */
@@ -196,8 +198,29 @@ const ARTS = {
     { n: "5", label: "shows directed" },
     { n: "🏆", label: "Best Script · Short+Sweet 2019" },
   ],
+  /* Comp card — shown from the "Comp Card" button in the header.
+     Age is computed automatically from PROFILE.born.
+     Headshots: drop files at these paths and they appear. */
+  compCard: {
+    subtitle: "Actor · Singer · Voice Artist",
+    headshots: [
+      "assets/img/comp/headshot-1.jpg",
+      "assets/img/comp/headshot-2.jpg",
+      "assets/img/comp/headshot-3.jpg",
+    ],
+    stats: [
+      ["Height", "184 cm"],
+      ["Vocal Range", "Bass – Tenor"],
+      ["Jacket Size", "Medium"],
+      ["Ethnicity", "Caucasian"],
+      ["Languages", "Arabic (native) · English · Bahasa Melayu"],
+      ["Base", "Kuala Lumpur, Malaysia"],
+    ],
+  },
   /* Shows are rendered in this order — most prominent first.
-     img: drop a file at assets/img/shows/<id>.jpg and it appears. */
+     Card image: assets/img/shows/<id>.jpg
+     Modal slider: add image paths to `gallery` (falls back to the card image).
+     `more`: extra paragraphs shown only in the modal. */
   shows: [
     {
       id: "forkbeard",
@@ -211,6 +234,11 @@ const ARTS = {
         "Year 1000 AD. The Vikings' old ways are threatened by winds of change from the South, as Forkbeard of Denmark plots to destroy Olav of Norway — once his most trusted brother-in-arms. Sword fights, warships, witches, and an original score, told by an all-Malaysian cast of 21. Based on true events that changed the course of European history.",
       link: "https://www.cloudjoi.com/shows/forkbeard-a-viking-musical-odyssey",
       badge: "THE BIG ONE",
+      gallery: [],
+      more: [
+        "Karam directed the production — 21 performers, sword choreography, and an original score — alongside an award-winning artistic team: musical direction by Dominic Lucien Luk, choreography by Aida Redza, book and music by Nancy Jenster.",
+        "He also designed the show's entire marketing identity: posters, socials, the lot.",
+      ],
     },
     {
       id: "us",
@@ -221,6 +249,10 @@ const ARTS = {
       synopsis:
         "Mark and Anna — two fiercely independent souls — fall into an unexpected romance that begins as fiery chemistry and unravels into passion, vulnerability, and self-discovery. What it means to love deeply, lose bravely, and find home.",
       link: "https://www.cloudjoi.com/shows/us-a-journey-of-love-loss",
+      gallery: [],
+      more: [
+        "Staged at klpac across two runs in June and July 2025.",
+      ],
     },
     {
       id: "twisted",
@@ -232,6 +264,7 @@ const ARTS = {
       synopsis:
         "Gone are the days of princesses waiting helplessly for knights in shining armour. Classic fairy-tale characters, rewritten as independent leads and woven into one new plot.",
       link: "https://www.cloudjoi.com/shows/twisted-a-different-kind-of-fairy-tale",
+      gallery: [],
     },
     {
       id: "his-story",
@@ -243,6 +276,10 @@ const ARTS = {
       synopsis:
         "Eight monologues by young writers on what it is to be him. Karam wrote and performed “I Got Busy” — one of the eight.",
       link: "https://www.cloudjoi.com/shows/his-story",
+      gallery: [],
+      more: [
+        "Presented by The Actors Studio Seni Teater Rakyat and klpac in collaboration with Big Nose Productions. Karam pulled double duty: playwright of one monologue and performer in the ensemble.",
+      ],
     },
     {
       id: "epic-game-show",
@@ -254,6 +291,10 @@ const ARTS = {
         "A stand-up comedian and an actor walk into a jazz club — and compete in singing, dancing, and jokes to prove which profession is the Real Funny Business. Two hours of comedy, zero dignity spared.",
       link: "https://www.cloudjoi.com/shows/4725-the-epic-game-show-with-nuha-and-karam",
       badge: "COMEDY",
+      gallery: [],
+      more: [
+        "Co-created with stand-up comedian Nuha — a two-hour live game show at BoboKL, KL's intimate jazz-club-slash-theatre.",
+      ],
     },
     {
       id: "short-sweet",
@@ -263,6 +304,7 @@ const ARTS = {
       venue: "Penang",
       synopsis:
         "The world's biggest little-play festival. Karam wrote and directed for the 2021 edition — two years after taking Best Script at Short+Sweet 2019.",
+      gallery: [],
     },
     {
       id: "once-upon-a-time",
@@ -272,6 +314,7 @@ const ARTS = {
       venue: "Streaming series",
       synopsis:
         "A four-part serialized theatre production performed across 2021–2022 — one story, told in instalments.",
+      gallery: [],
     },
     {
       id: "love-in-georgetown",
@@ -280,6 +323,7 @@ const ARTS = {
       dates: "Dec 2020",
       venue: "George Town, Penang",
       synopsis: "A love letter to Penang's capital, performed in it.",
+      gallery: [],
     },
     {
       id: "tales-from-the-scars",
@@ -288,6 +332,7 @@ const ARTS = {
       dates: "Dec 2020",
       venue: "Penang",
       synopsis: "Stories that leave marks — an ensemble piece from the Penang stage.",
+      gallery: [],
     },
   ],
   /* Voiceover & screen — add items as {title, note, src (mp3/video)} */

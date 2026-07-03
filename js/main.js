@@ -28,6 +28,39 @@ function shareLink(side) {
 const img = (src, alt, cls = "") =>
   `<img class="${cls}" src="${src}" alt="${esc(alt)}" loading="lazy" onerror="this.closest('figure') ? this.closest('figure').classList.add('no-img') : this.remove()" />`;
 
+function ageFrom(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const now = new Date();
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) age--;
+  return age;
+}
+
+/* ---------- link pills with icons ---------- */
+
+const ICONS = {
+  apple:
+    '<svg viewBox="0 0 384 512" aria-hidden="true"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>',
+  gplay:
+    '<svg viewBox="0 0 512 512" aria-hidden="true"><path fill="currentColor" d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/></svg>',
+  globe:
+    '<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="6.4"/><path d="M1.6 8h12.8M8 1.6c2.4 2.6 2.4 10.2 0 12.8-2.4-2.6-2.4-10.2 0-12.8z"/></svg>',
+};
+
+function linkIcon(label) {
+  const l = label.toLowerCase();
+  if (l.includes("app store")) return ICONS.apple;
+  if (l.includes("play")) return ICONS.gplay;
+  return ICONS.globe;
+}
+
+const linksRow = (links) =>
+  links && links.length
+    ? `<nav class="tcard-links">${links
+        .map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${linkIcon(l.label)}<span>${esc(l.label)}</span></a>`)
+        .join("")}</nav>`
+    : "";
+
 /* ---------- transition between sides ---------- */
 
 let currentRoute = null;
@@ -42,6 +75,63 @@ function navigate(route) {
     transition.className = theme + " opening";
     setTimeout(() => (transition.className = ""), 650);
   }, 450);
+}
+
+/* ---------- shared modal ---------- */
+
+const modalShell = `
+  <div class="modal-overlay" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" aria-label="Close">✕</button>
+      <div class="modal-body"></div>
+    </div>
+  </div>`;
+
+function setupModal() {
+  const overlay = document.getElementById("modal");
+  const body = overlay.querySelector(".modal-body");
+  const open = (html) => {
+    body.innerHTML = html;
+    wireSlider(body);
+    overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+    overlay.querySelector(".modal-close").focus();
+  };
+  const close = () => {
+    overlay.hidden = true;
+    document.body.style.overflow = "";
+  };
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector(".modal-close").addEventListener("click", close);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlay.hidden) close(); });
+  return open;
+}
+
+/* ---------- image slider (used inside modals) ---------- */
+
+function sliderHTML(imgs, altBase) {
+  return `
+  <div class="slider">
+    ${imgs.map((s, i) => `<img class="slide ${i === 0 ? "on" : ""}" src="${s}" alt="${esc(altBase)} — photo ${i + 1}" onerror="this.remove()" />`).join("")}
+    <div class="slide-fallback serif" aria-hidden="true">${esc(altBase.slice(0, 1))}</div>
+    <button class="slide-nav prev" aria-label="Previous photo">‹</button>
+    <button class="slide-nav next" aria-label="Next photo">›</button>
+  </div>`;
+}
+
+function wireSlider(root) {
+  const slider = root.querySelector(".slider");
+  if (!slider) return;
+  const move = (dir) => {
+    const slides = [...slider.querySelectorAll(".slide")];
+    if (slides.length < 2) return;
+    let i = slides.findIndex((s) => s.classList.contains("on"));
+    if (i < 0) i = 0;
+    slides[i].classList.remove("on");
+    slides[(i + dir + slides.length) % slides.length].classList.add("on");
+  };
+  slider.querySelector(".prev").addEventListener("click", () => move(-1));
+  slider.querySelector(".next").addEventListener("click", () => move(1));
 }
 
 /* ---------- views ---------- */
@@ -86,11 +176,13 @@ function renderLanding() {
 /* --- shared page chrome --- */
 
 function pageHeader(side) {
+  const compBtn = side === "arts" ? `<button class="btn-solid arts" data-comp>Comp Card</button>` : "";
   return `
   <header class="page-head">
     <a class="head-name" href="#/" data-nav="">${esc(PROFILE.name)}</a>
     <nav class="head-actions">
       <button class="btn-ghost" data-share="${side}">Share this side</button>
+      ${compBtn}
     </nav>
   </header>`;
 }
@@ -107,6 +199,7 @@ function pageFooter(side) {
       : [
           ["CloudJoi", PROFILE.cloudjoi],
           ["Instagram", PROFILE.instagram],
+          ["YouTube", PROFILE.youtube],
           ["Fiverr", PROFILE.fiverr],
           ["Email", "mailto:" + PROFILE.email],
         ];
@@ -176,6 +269,7 @@ function renderTech() {
             <span class="tcard-tag mono">${esc(h.tag)}</span>
             <h3>${esc(h.title)}</h3>
             <ul class="tcard-bullets">${h.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>
+            ${linksRow(h.links)}
             <span class="tcard-more mono">expand →</span>
           </article>`).join("")}
       </div>
@@ -211,48 +305,27 @@ function renderTech() {
       <button class="btn-ghost" data-share="tech">Copy link to this side</button>
     </section>
   </main>
-  <div class="modal-overlay" id="modal" hidden>
-    <div class="modal" role="dialog" aria-modal="true">
-      <button class="modal-close" aria-label="Close">✕</button>
-      <div class="modal-body"></div>
-    </div>
-  </div>
+  ${modalShell}
   ${pageFooter("tech")}`;
 
   wirePage();
-  wireModal();
-  typeTerminal();
-}
-
-function wireModal() {
-  const overlay = document.getElementById("modal");
-  const body = overlay.querySelector(".modal-body");
-
-  const open = (h) => {
-    body.innerHTML = `
-      <span class="tcard-tag mono">${esc(h.tag)}</span>
-      <h3 class="modal-title">${esc(h.title)}</h3>
-      ${h.story.map((p) => `<p class="modal-p">${esc(p)}</p>`).join("")}
-      ${h.wins ? `<h4 class="modal-wins-title mono">// achievements</h4>
-        <ul class="modal-wins">${h.wins.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
-      ${h.links ? `<nav class="tcard-links">${h.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("")}</nav>` : ""}`;
-    overlay.hidden = false;
-    document.body.style.overflow = "hidden";
-    overlay.querySelector(".modal-close").focus();
-  };
-  const close = () => {
-    overlay.hidden = true;
-    document.body.style.overflow = "";
-  };
-
+  const open = setupModal();
   document.querySelectorAll("[data-modal]").forEach((card) => {
-    const show = () => open(TECH.highlights[Number(card.dataset.modal)]);
+    const show = (e) => {
+      if (e && e.target && e.target.closest("a")) return; // link clicks pass through
+      const h = TECH.highlights[Number(card.dataset.modal)];
+      open(`
+        <span class="tcard-tag mono">${esc(h.tag)}</span>
+        <h3 class="modal-title">${esc(h.title)}</h3>
+        ${h.story.map((p) => `<p class="modal-p">${esc(p)}</p>`).join("")}
+        ${h.wins ? `<h4 class="modal-wins-title mono">// achievements</h4>
+          <ul class="modal-wins">${h.wins.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+        ${linksRow(h.links)}`);
+    };
     card.addEventListener("click", show);
     card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); } });
   });
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
-  overlay.querySelector(".modal-close").addEventListener("click", close);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlay.hidden) close(); });
+  typeTerminal();
 }
 
 function typeTerminal() {
@@ -272,12 +345,11 @@ function typeTerminal() {
 
 /* --- ARTS --- */
 
-function showCard(s) {
+function showCard(s, i) {
   const badge = s.badge ? `<span class="pb-badge">${esc(s.badge)}</span>` : "";
   const company = s.company ? `<p class="pb-company serif-it">${esc(s.company)}</p>` : "";
-  const link = s.link ? `<a class="pb-link" href="${s.link}" target="_blank" rel="noopener">Show page ↗</a>` : "";
   return `
-  <article class="playbill ${s.featured ? "featured" : ""}">
+  <article class="playbill ${s.featured ? "featured" : ""}" data-show="${i}" tabindex="0" role="button" aria-label="Open details for ${esc(s.title)}">
     <figure class="pb-art">
       ${img(`assets/img/shows/${s.id}.jpg`, s.title + " poster")}
       <figcaption class="pb-monogram serif" aria-hidden="true">${esc(s.title.slice(0, 1))}</figcaption>
@@ -289,9 +361,28 @@ function showCard(s) {
       <p class="pb-meta">${esc(s.dates)} · ${esc(s.venue)}</p>
       ${company}
       <p class="pb-syn">${esc(s.synopsis)}</p>
-      ${link}
+      <span class="pb-open serif-it">Full programme notes →</span>
     </div>
   </article>`;
+}
+
+function compCardHTML() {
+  const c = ARTS.compCard;
+  const stats = [["Age", String(ageFrom(PROFILE.born))], ...c.stats];
+  return `
+    <div class="comp-shots">
+      ${c.headshots.map((h, i) => `<img src="${h}" alt="Headshot ${i + 1}" onerror="this.remove()" />`).join("")}
+      <div class="comp-shots-fallback serif-it">Headshots coming soon</div>
+    </div>
+    <h3 class="modal-title serif">${esc(PROFILE.name)}</h3>
+    <p class="comp-sub serif-it">${esc(c.subtitle)} — ${esc(PROFILE.location)}</p>
+    <dl class="comp-stats">
+      ${stats.map(([k, v]) => `<div class="comp-stat"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}
+    </dl>
+    <nav class="tcard-links comp-links">
+      <a href="mailto:${PROFILE.email}">${ICONS.globe}<span>${esc(PROFILE.email)}</span></a>
+      <a href="${PROFILE.cloudjoi}" target="_blank" rel="noopener">${ICONS.globe}<span>CloudJoi profile</span></a>
+    </nav>`;
 }
 
 function renderArts() {
@@ -324,6 +415,7 @@ function renderArts() {
       <div class="side-block">
         <h3 class="serif">📺 On screen</h3>
         <p>${esc(ARTS.screen.intro)}</p>
+        <nav class="tcard-links arts-links"><a href="${PROFILE.youtube}" target="_blank" rel="noopener">${ICONS.globe}<span>YouTube channel</span></a></nav>
       </div>
       <div class="side-block">
         <h3 class="serif">🎨 The posters</h3>
@@ -340,9 +432,35 @@ function renderArts() {
       <button class="btn-ghost arts" data-share="arts">Copy link to this side</button>
     </section>
   </main>
+  ${modalShell}
   ${pageFooter("arts")}`;
 
   wirePage();
+  const open = setupModal();
+
+  /* show detail modals with photo slider */
+  document.querySelectorAll("[data-show]").forEach((card) => {
+    const show = (e) => {
+      if (e && e.target && e.target.closest("a")) return;
+      const s = ARTS.shows[Number(card.dataset.show)];
+      const gallery = s.gallery && s.gallery.length ? s.gallery : [`assets/img/shows/${s.id}.jpg`];
+      open(`
+        ${sliderHTML(gallery, s.title)}
+        <p class="pb-role mono">${esc(s.role).toUpperCase()}</p>
+        <h3 class="modal-title serif">${esc(s.title)}</h3>
+        <p class="pb-meta">${esc(s.dates)} · ${esc(s.venue)}${s.company ? " · " + esc(s.company) : ""}</p>
+        <p class="modal-p">${esc(s.synopsis)}</p>
+        ${(s.more || []).map((p) => `<p class="modal-p">${esc(p)}</p>`).join("")}
+        ${s.link ? `<nav class="tcard-links arts-links"><a href="${s.link}" target="_blank" rel="noopener">${ICONS.globe}<span>Show page</span></a></nav>` : ""}`);
+    };
+    card.addEventListener("click", show);
+    card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); } });
+  });
+
+  /* comp card */
+  document.querySelectorAll("[data-comp]").forEach((btn) =>
+    btn.addEventListener("click", () => open(compCardHTML()))
+  );
 
   /* spotlight follows the cursor in the hero */
   const spot = document.getElementById("spot");
