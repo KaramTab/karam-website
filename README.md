@@ -13,6 +13,12 @@ pick a side; each side has its own shareable deep link.
 | Everyone (split landing) | `https://<your-domain>/` |
 | Tech conference crowd | `https://<your-domain>/#/tech` |
 | Theatre & creative crowd | `https://<your-domain>/#/arts` |
+| Recruiters (printable résumé) | `https://<your-domain>/#/resume` |
+| Casting agencies (printable comp card) | `https://<your-domain>/#/comp-card` |
+
+The résumé and comp card are generated from the same `js/data.js` content as the
+site, so updating your experience there updates the PDFs too. The "PDF" buttons
+open a print-ready page and trigger the browser's Print → Save as PDF.
 
 Each side also has a **"Share this side"** button that copies the right link.
 

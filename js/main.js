@@ -176,13 +176,16 @@ function renderLanding() {
 /* --- shared page chrome --- */
 
 function pageHeader(side) {
-  const compBtn = side === "arts" ? `<button class="btn-solid arts" data-comp>Comp Card</button>` : "";
+  const mainBtn =
+    side === "arts"
+      ? `<button class="btn-solid arts" data-comp>Comp Card</button>`
+      : `<button class="btn-solid" data-print="resume">Résumé PDF</button>`;
   return `
   <header class="page-head">
     <a class="head-name" href="#/" data-nav="">${esc(PROFILE.name)}</a>
     <nav class="head-actions">
       <button class="btn-ghost" data-share="${side}">Share this side</button>
-      ${compBtn}
+      ${mainBtn}
     </nav>
   </header>`;
 }
@@ -294,13 +297,15 @@ function renderTech() {
           </div>`).join("")}
       </div>
       <div class="edu-row">
-        <p><strong>${esc(TECH.education.degree)}</strong> · ${esc(TECH.education.school)}</p>
+        <p><strong>${esc(TECH.education.degree)}</strong> · ${esc(TECH.education.school)}<br>
+        <span class="dim">${TECH.certifications.map(esc).join(" · ")}</span></p>
         <p class="mono dim">${TECH.languages.map(esc).join(" · ")}</p>
       </div>
     </section>
 
     <section class="section cta-row">
       <a class="btn-solid" href="${PROFILE.linkedin}" target="_blank" rel="noopener">Connect on LinkedIn</a>
+      <button class="btn-ghost" data-print="resume">Download Résumé (PDF)</button>
       <a class="btn-ghost" href="${PROFILE.github}" target="_blank" rel="noopener">GitHub</a>
       <button class="btn-ghost" data-share="tech">Copy link to this side</button>
     </section>
@@ -382,7 +387,8 @@ function compCardHTML() {
     <nav class="tcard-links comp-links">
       <a href="mailto:${PROFILE.email}">${ICONS.globe}<span>${esc(PROFILE.email)}</span></a>
       <a href="${PROFILE.cloudjoi}" target="_blank" rel="noopener">${ICONS.globe}<span>CloudJoi profile</span></a>
-    </nav>`;
+    </nav>
+    <button class="btn-solid arts comp-dl" data-print="comp-card">Download as PDF</button>`;
 }
 
 function renderArts() {
@@ -471,14 +477,124 @@ function renderArts() {
   });
 }
 
+/* ---------- printable documents (PDF via the browser's print-to-PDF) ---------- */
+
+function printBar(backHash) {
+  return `
+  <div class="print-bar no-print">
+    <a href="${backHash}">← Back to site</a>
+    <button class="print-go" onclick="window.print()">🖨 Print / Save as PDF</button>
+  </div>`;
+}
+
+function maybeAutoPrint() {
+  if (sessionStorage.getItem("autoprint")) {
+    sessionStorage.removeItem("autoprint");
+    setTimeout(() => window.print(), 500);
+  }
+}
+
+/* Résumé — generated from the same TECH data as the site, so they never drift. */
+function renderResume() {
+  document.body.dataset.view = "print";
+  app.innerHTML = `
+  ${printBar("#/tech")}
+  <main class="print-doc resume-doc">
+    <header class="r-head">
+      <h1 class="serif">${esc(PROFILE.name)}</h1>
+      <p class="r-title">${esc(TECH.role)} · ${esc(TECH.org)}</p>
+      <p class="r-contact">${esc(PROFILE.email)} &nbsp;·&nbsp; linkedin.com/in/karam-altabba &nbsp;·&nbsp; ${esc(PROFILE.location)}</p>
+    </header>
+
+    <section>
+      <h2>Summary</h2>
+      <p class="r-summary">${esc(TECH.summary)}</p>
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      ${TECH.career.map((c) => `
+        <div class="r-job">
+          <div class="r-job-head">
+            <h3>${esc(c.role)} <span class="r-org">— ${esc(c.org)}</span></h3>
+            <span class="r-period">${esc(c.period)}</span>
+          </div>
+          <ul>${(c.resumePoints || [c.note]).map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
+        </div>`).join("")}
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      ${TECH.skills.map((g) => `<p class="r-skill"><strong>${esc(g.group)}:</strong> ${g.items.map(esc).join(" · ")}</p>`).join("")}
+    </section>
+
+    <div class="r-cols">
+      <section>
+        <h2>Education</h2>
+        <p><strong>${esc(TECH.education.degree)}</strong><br>${esc(TECH.education.school)}</p>
+      </section>
+      <section>
+        <h2>Certifications</h2>
+        <p>${TECH.certifications.map(esc).join("<br>")}</p>
+      </section>
+      <section>
+        <h2>Languages</h2>
+        <p>${TECH.languages.map(esc).join("<br>")}</p>
+      </section>
+    </div>
+  </main>`;
+  maybeAutoPrint();
+}
+
+/* Comp card — same data as the on-site comp card modal. */
+function renderCompPrint() {
+  document.body.dataset.view = "print";
+  const c = ARTS.compCard;
+  const stats = [["Age", String(ageFrom(PROFILE.born))], ...c.stats];
+  app.innerHTML = `
+  ${printBar("#/arts")}
+  <main class="print-doc comp-doc">
+    <header class="r-head comp-head">
+      <h1 class="serif">${esc(PROFILE.name)}</h1>
+      <p class="r-title">${esc(c.subtitle)}</p>
+      <p class="r-contact">${esc(PROFILE.email)} &nbsp;·&nbsp; cloudjoi.com/profiles/116861 &nbsp;·&nbsp; ${esc(PROFILE.location)}</p>
+    </header>
+    <div class="comp-doc-shots">
+      ${c.headshots.map((h, i) => `<img src="${h}" alt="Headshot ${i + 1}" onerror="this.remove()" />`).join("")}
+    </div>
+    <dl class="comp-doc-stats">
+      ${stats.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}
+    </dl>
+    <section class="comp-doc-credits">
+      <h2>Selected credits</h2>
+      <ul>
+        ${ARTS.shows.slice(0, 5).map((s) => `<li><strong>${esc(s.title)}</strong> — ${esc(s.role)} · ${esc(s.dates)} · ${esc(s.venue)}</li>`).join("")}
+      </ul>
+    </section>
+  </main>`;
+  maybeAutoPrint();
+}
+
+/* Any [data-print] button anywhere (pages or modals) opens the print view
+   and auto-triggers the print dialog. */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-print]");
+  if (!btn) return;
+  sessionStorage.setItem("autoprint", "1");
+  location.hash = "#/" + btn.dataset.print;
+});
+
 /* ---------- boot ---------- */
 
 function route() {
   const h = location.hash.replace(/^#\/?/, "").toLowerCase();
-  currentRoute = h === "tech" || h === "arts" ? h : "";
-  if (currentRoute === "tech") renderTech();
-  else if (currentRoute === "arts") renderArts();
-  else renderLanding();
+  document.body.style.overflow = ""; // in case a modal was open
+  if (h === "tech") { currentRoute = "tech"; renderTech(); }
+  else if (h === "arts") { currentRoute = "arts"; renderArts(); }
+  else if (h === "resume") { currentRoute = "resume"; renderResume(); }
+  else if (h === "comp-card") { currentRoute = "comp-card"; renderCompPrint(); }
+  else { currentRoute = ""; renderLanding(); }
+  window.scrollTo(0, 0);
 }
 
 window.addEventListener("hashchange", route);

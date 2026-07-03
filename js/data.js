@@ -146,31 +146,64 @@ const TECH = {
       ],
     },
   ],
-  /* Gantt timeline — start/end are decimal years; end: null = present */
+  /* Gantt timeline — start/end are decimal years; end: null = present.
+     `note` = short hover text on the site Gantt chart.
+     `period` + `resumePoints` = what appears on the printable PDF résumé.
+     Add a new role here and BOTH the site and the résumé update. */
   career: [
     {
       role: "Programme Manager, AI",
       org: "YTL AI Labs",
       start: 2024.0, end: null,
+      period: "2024 – Present",
       note: "Promoted; FrogAsia became YTL AI Labs. Building ILMU, Malaysia's own AI · Ryt AI: implementation → launch → support · ILMUchat launch.",
+      resumePoints: [
+        "Programme management for ILMU — Malaysia's own sovereign, multimodal AI model (YTL AI Labs × Universiti Malaya) — across research, engineering, and deployment workstreams.",
+        "Project-managed Ryt AI from implementation through launch to live support: the AI assistant inside Ryt Bank, Malaysia's fastest-growing digital bank — 1.2M users and 25M+ transactions within 7 months of launch; nearly half of all users bank through the AI.",
+        "Winner: Best AI-Powered Customer Experience & Engagement Initiative in Malaysia — The Asian Banker Malaysia Awards 2026.",
+        "Launched ILMUchat, Malaysia's first multimodal AI assistant fluent in Bahasa Melayu, Manglish, and local dialects — 15,000 users and growing.",
+      ],
     },
     {
       role: "Project Management Lead",
-      org: "FrogAsia",
+      org: "FrogAsia Sdn Bhd",
       start: 2022.45, end: 2024.0,
+      period: "Jun 2022 – 2024",
       note: "PM frameworks across streams · national Frog VLE ecosystem (10M+ students) · Launchpad app (1M+ downloads) · Teach for Malaysia volunteer.",
+      resumePoints: [
+        "Ran the national Virtual Learning Environment (Frog VLE) ecosystem serving over 10 million students nationwide.",
+        "Delivered Launchpad, a handheld learning-assistant app — 1M+ downloads across Android and iOS.",
+        "Mapped and enhanced project management frameworks across multiple workstreams.",
+        "Automated user-testing flows and feedback collection & prioritisation.",
+        "Volunteered with Teach for Malaysia (partner) to teach low-income communities within KL.",
+      ],
     },
     {
       role: "Senior Project Manager",
       org: "Onnet Sdn Bhd",
       start: 2018.25, end: 2022.45,
+      period: "Apr 2018 – Jun 2022",
       note: "10+ ERP projects · marketing lead for 2 SaaS products · led devs, BAs & support · sales & requirements on high-value leads.",
+      resumePoints: [
+        "Managed 10+ ERP software projects from conception to completion.",
+        "Marketing lead for 2 SaaS products — created the initial brands and introduced the products to market.",
+        "Led a team of developers, business analysts, and support staff.",
+        "Designed and conducted application training courses for internal staff and customers.",
+        "Chaired sales discussions and requirements gathering on high-value leads.",
+        "Automated data collection and analysis for customer acquisition and retention.",
+      ],
     },
     {
       role: "Chief Technology Officer",
       org: "iKitch Sdn Bhd",
       start: 2016.45, end: 2017.2,
+      period: "Jun 2016 – Mar 2017",
       note: "Online marketplace · supply-chain ERP · directed 2 e-commerce builds · IT policy.",
+      resumePoints: [
+        "Implemented and supported an online marketplace and a supply-chain ERP solution.",
+        "Project director for 2 e-commerce website builds; project lead for online branding campaigns.",
+        "Established and enforced IT policies.",
+      ],
     },
   ],
   skills: [
@@ -183,6 +216,7 @@ const TECH = {
     degree: "B.Sc. Information Technology Management",
     school: "Multimedia University, Melaka",
   },
+  certifications: ["Project Management Professional (PMP)", "Odoo ERP Professional"],
   languages: ["Arabic (native)", "English (excellent)", "Bahasa Melayu (learning)"],
 };
 
