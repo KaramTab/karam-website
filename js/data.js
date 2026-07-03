@@ -25,21 +25,45 @@ const TECH = {
     "Programme Manager, AI @ YTL AI Labs",
     "> current_mission",
     "Helping build ILMU — Malaysia's own AI",
-    "> years_shipping",
-    "10+ and counting",
+    "> shipped_recently",
+    "Ryt AI — a bank you can talk to (1.2M users)",
   ],
   summary:
-    "Ten years of turning ambitious, messy, cross-functional work into shipped products — from ERP rollouts and SaaS launches to a national education platform and now frontier AI. I'm the person who builds the framework, automates the boring parts, and keeps twenty workstreams honest.",
+    "Ten years of turning ambitious, messy, cross-functional work into shipped products — from ERP rollouts and a national education platform to a bank you can talk to. I'm the person who builds the framework, automates the boring parts, and keeps twenty workstreams honest.",
   highlights: [
     {
       title: "ILMU — Malaysia's AI",
-      text: "Part of the YTL AI Labs team building ILMU, Malaysia's own large language model. Programme management across research, engineering, and deployment workstreams.",
-      tag: "NOW",
+      text: "Part of the YTL AI Labs team building ILMU (Intelek Luhur Malaysia Untukmu) — Malaysia's own multimodal, sovereign AI model, built with Universiti Malaya. It outperforms frontier models on the Malay MMLU benchmark. Programme management across research, engineering, and deployment workstreams.",
+      tag: "AI",
+      links: [{ label: "ytlailabs.com", href: "https://www.ytlailabs.com/" }],
     },
     {
-      title: "Frog VLE at national scale",
-      text: "Managed continuous-improvement programmes for a virtual learning environment serving millions of students across Malaysia.",
+      title: "Ryt AI — banking in plain language",
+      text: "Project-managed Ryt AI from implementation through launch to live support: the ILMU-powered assistant inside Ryt Bank, Malaysia's fastest-growing digital bank — 1.2 million users and 25M+ transactions in its first seven months. Customers transfer money, pay and split bills, and get financial guidance by simply asking — nearly half of them use it, across every age group. Winner: Best AI-Powered Customer Experience, Asian Banker Malaysia Awards 2026.",
+      tag: "FINTECH",
+      links: [
+        { label: "App Store", href: "https://apps.apple.com/my/app/ryt-bank-ai-powered-bank/id6480042570" },
+        { label: "Google Play", href: "https://play.google.com/store/apps/details?id=my.rytbank.app&hl=en-US" },
+      ],
+    },
+    {
+      title: "ILMUchat — the AI that speaks Malaysian",
+      text: "Freshly launched: Malaysia's first multimodal AI assistant fluent in Bahasa Melayu, Manglish, and local dialects — text, voice, and images. 15,000 users and climbing.",
+      tag: "AI",
+      links: [
+        { label: "ilmu.ai", href: "https://www.ilmu.ai/" },
+        { label: "App Store", href: "https://apps.apple.com/my/app/ilmuchat/id6748936268" },
+        { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.ytlailabs.ilmu.chat" },
+      ],
+    },
+    {
+      title: "Frog VLE & Launchpad — edtech at national scale",
+      text: "At FrogAsia, ran the national Virtual Learning Environment ecosystem serving over 10 million students nationwide, and delivered Launchpad — a handheld learning-assistant app with 1M+ downloads across Android and iOS.",
       tag: "EDTECH",
+      links: [
+        { label: "App Store", href: "https://apps.apple.com/my/app/launchpad-frogplay/id1441749509" },
+        { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.frogeducationsdnbhd.play&hl=en" },
+      ],
     },
     {
       title: "Automation as a habit",
@@ -58,13 +82,13 @@ const TECH = {
       role: "Programme Manager, AI",
       org: "YTL AI Labs",
       start: 2024.0, end: null,
-      note: "Promoted; FrogAsia became YTL AI Labs. Building ILMU, Malaysia's own AI.",
+      note: "Promoted; FrogAsia became YTL AI Labs. Building ILMU, Malaysia's own AI · Ryt AI: implementation → launch → support · ILMUchat launch.",
     },
     {
       role: "Project Management Lead",
       org: "FrogAsia",
       start: 2022.45, end: 2024.0,
-      note: "PM frameworks across streams · Frog VLE (millions of users) · automated user testing · Teach for Malaysia volunteer.",
+      note: "PM frameworks across streams · national Frog VLE ecosystem (10M+ students) · Launchpad app (1M+ downloads) · Teach for Malaysia volunteer.",
     },
     {
       role: "Senior Project Manager",

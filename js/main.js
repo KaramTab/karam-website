@@ -171,6 +171,7 @@ function renderTech() {
             <span class="tcard-tag mono">${esc(h.tag)}</span>
             <h3>${esc(h.title)}</h3>
             <p>${esc(h.text)}</p>
+            ${h.links ? `<nav class="tcard-links">${h.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("")}</nav>` : ""}
           </article>`).join("")}
       </div>
     </section>

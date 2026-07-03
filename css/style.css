@@ -186,6 +186,9 @@ body[data-view="arts"] .page-foot { background: var(--arts-bg2); color: var(--ar
 .tcard-tag { font-size: .68rem; color: var(--tech-accent); letter-spacing: .18em; border: 1px solid #00a6e845; padding: .2rem .55rem; border-radius: 4px; }
 .tcard h3 { margin: .9rem 0 .5rem; font-size: 1.08rem; }
 .tcard p { color: var(--tech-dim); line-height: 1.6; font-size: .93rem; }
+.tcard-links { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .9rem; }
+.tcard-links a { font-family: var(--mono); font-size: .74rem; color: var(--tech-accent); text-decoration: none; border: 1px solid #00a6e838; border-radius: 999px; padding: .22rem .7rem; transition: .2s; }
+.tcard-links a:hover { background: var(--tech-accent); color: #04121c; }
 
 /* Gantt */
 .gantt { position: relative; border: 1px solid var(--tech-line); border-radius: 12px; padding: 2.6rem 1.2rem 1.2rem; background: var(--tech-bg2); overflow: visible; }
