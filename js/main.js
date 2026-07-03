@@ -86,25 +86,30 @@ function renderLanding() {
 /* --- shared page chrome --- */
 
 function pageHeader(side) {
-  const other = side === "tech" ? "arts" : "tech";
-  const flipLabel = side === "tech" ? "🎭 Meet the performer" : "⌘ Meet the programme manager";
   return `
   <header class="page-head">
     <a class="head-name" href="#/" data-nav="">${esc(PROFILE.name)}</a>
     <nav class="head-actions">
       <button class="btn-ghost" data-share="${side}">Share this side</button>
-      <button class="btn-flip" data-nav="${other}">${flipLabel}</button>
     </nav>
   </header>`;
 }
 
+/* Each side keeps its own links only — sharing one side never leaks the other. */
 function pageFooter(side) {
-  const links = [
-    ["LinkedIn", PROFILE.linkedin],
-    ["Instagram", PROFILE.instagram],
-    ["CloudJoi", PROFILE.cloudjoi],
-    ["Email", "mailto:" + PROFILE.email],
-  ];
+  const links =
+    side === "tech"
+      ? [
+          ["LinkedIn", PROFILE.linkedin],
+          ["GitHub", PROFILE.github],
+          ["Email", "mailto:" + PROFILE.email],
+        ]
+      : [
+          ["CloudJoi", PROFILE.cloudjoi],
+          ["Instagram", PROFILE.instagram],
+          ["Fiverr", PROFILE.fiverr],
+          ["Email", "mailto:" + PROFILE.email],
+        ];
   return `
   <footer class="page-foot">
     <p class="foot-tag">${side === "tech" ? "This site was project-managed, obviously." : "No intermission. Scroll again from the top."}</p>
@@ -164,14 +169,14 @@ function renderTech() {
     </section>
 
     <section class="section">
-      <h2 class="sec-title mono">/highlights</h2>
+      <h2 class="sec-title mono">/highlights — <span class="dim">click a card for the full story</span></h2>
       <div class="cards-grid">
-        ${TECH.highlights.map((h) => `
-          <article class="tcard">
+        ${TECH.highlights.map((h, i) => `
+          <article class="tcard tcard-click" data-modal="${i}" tabindex="0" role="button" aria-label="Expand ${esc(h.title)}">
             <span class="tcard-tag mono">${esc(h.tag)}</span>
             <h3>${esc(h.title)}</h3>
-            <p>${esc(h.text)}</p>
-            ${h.links ? `<nav class="tcard-links">${h.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("")}</nav>` : ""}
+            <ul class="tcard-bullets">${h.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>
+            <span class="tcard-more mono">expand →</span>
           </article>`).join("")}
       </div>
     </section>
@@ -202,14 +207,52 @@ function renderTech() {
 
     <section class="section cta-row">
       <a class="btn-solid" href="${PROFILE.linkedin}" target="_blank" rel="noopener">Connect on LinkedIn</a>
+      <a class="btn-ghost" href="${PROFILE.github}" target="_blank" rel="noopener">GitHub</a>
       <button class="btn-ghost" data-share="tech">Copy link to this side</button>
-      <button class="btn-flip" data-nav="arts">🎭 There's another side to this</button>
     </section>
   </main>
+  <div class="modal-overlay" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" aria-label="Close">✕</button>
+      <div class="modal-body"></div>
+    </div>
+  </div>
   ${pageFooter("tech")}`;
 
   wirePage();
+  wireModal();
   typeTerminal();
+}
+
+function wireModal() {
+  const overlay = document.getElementById("modal");
+  const body = overlay.querySelector(".modal-body");
+
+  const open = (h) => {
+    body.innerHTML = `
+      <span class="tcard-tag mono">${esc(h.tag)}</span>
+      <h3 class="modal-title">${esc(h.title)}</h3>
+      ${h.story.map((p) => `<p class="modal-p">${esc(p)}</p>`).join("")}
+      ${h.wins ? `<h4 class="modal-wins-title mono">// achievements</h4>
+        <ul class="modal-wins">${h.wins.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+      ${h.links ? `<nav class="tcard-links">${h.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("")}</nav>` : ""}`;
+    overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+    overlay.querySelector(".modal-close").focus();
+  };
+  const close = () => {
+    overlay.hidden = true;
+    document.body.style.overflow = "";
+  };
+
+  document.querySelectorAll("[data-modal]").forEach((card) => {
+    const show = () => open(TECH.highlights[Number(card.dataset.modal)]);
+    card.addEventListener("click", show);
+    card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); } });
+  });
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector(".modal-close").addEventListener("click", close);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlay.hidden) close(); });
 }
 
 function typeTerminal() {
@@ -293,8 +336,8 @@ function renderArts() {
 
     <section class="section cta-row">
       <a class="btn-solid arts" href="${PROFILE.cloudjoi}" target="_blank" rel="noopener">Full profile on CloudJoi</a>
+      <a class="btn-ghost arts" href="${PROFILE.fiverr}" target="_blank" rel="noopener">Hire me on Fiverr</a>
       <button class="btn-ghost arts" data-share="arts">Copy link to this side</button>
-      <button class="btn-flip arts" data-nav="tech">⌘ He also has a day job</button>
     </section>
   </main>
   ${pageFooter("arts")}`;

@@ -5,13 +5,14 @@
    ============================================================ */
 
 const PROFILE = {
-  name: "Karam Altabaa",
-  stageName: "Karam Tabba",
+  name: "Karam Tabba",
   tagline: "I run programmes by day. I appear in them by night.",
   email: "Karamtabba@gmail.com",
   linkedin: "https://www.linkedin.com/in/karam-altabba/",
+  github: "https://github.com/KaramTab",
   instagram: "https://www.instagram.com/karamtabba/",
   cloudjoi: "https://www.cloudjoi.com/profiles/116861",
+  fiverr: "https://www.fiverr.com/users/karamtabba",
   location: "Kuala Lumpur, Malaysia",
 };
 
@@ -30,17 +31,45 @@ const TECH = {
   ],
   summary:
     "Ten years of turning ambitious, messy, cross-functional work into shipped products — from ERP rollouts and a national education platform to a bank you can talk to. I'm the person who builds the framework, automates the boring parts, and keeps twenty workstreams honest.",
+  /* Each highlight: short bullets on the card; clicking opens a modal
+     with `story` paragraphs + `wins` achievement list. */
   highlights: [
     {
       title: "ILMU — Malaysia's AI",
-      text: "Part of the YTL AI Labs team building ILMU (Intelek Luhur Malaysia Untukmu) — Malaysia's own multimodal, sovereign AI model, built with Universiti Malaya. It outperforms frontier models on the Malay MMLU benchmark. Programme management across research, engineering, and deployment workstreams.",
       tag: "AI",
+      bullets: [
+        "Malaysia's own sovereign, multimodal AI model",
+        "Programme management across research, engineering & deployment",
+        "Outperforms frontier models on the Malay MMLU benchmark",
+      ],
+      story: [
+        "ILMU (Intelek Luhur Malaysia Untukmu) is Malaysia's own AI model — built entirely in Malaysia by YTL AI Labs in collaboration with Universiti Malaya. It handles text, voice, and images, and it's hosted, managed, and governed in Malaysia with data protected under the PDPA.",
+        "My job is programme management across the workstreams that make a frontier-model effort actually ship: research, engineering, deployment, and the products built on top of it.",
+      ],
+      wins: [
+        "Outperforms all frontier models in Bahasa Melayu understanding (Malay MMLU benchmark)",
+        "Powers products used by millions of Malaysians — Ryt AI and ILMUchat below",
+      ],
       links: [{ label: "ytlailabs.com", href: "https://www.ytlailabs.com/" }],
     },
     {
       title: "Ryt AI — banking in plain language",
-      text: "Project-managed Ryt AI from implementation through launch to live support: the ILMU-powered assistant inside Ryt Bank, Malaysia's fastest-growing digital bank — 1.2 million users and 25M+ transactions in its first seven months. Customers transfer money, pay and split bills, and get financial guidance by simply asking — nearly half of them use it, across every age group. Winner: Best AI-Powered Customer Experience, Asian Banker Malaysia Awards 2026.",
       tag: "FINTECH",
+      bullets: [
+        "Project-managed implementation → launch → live support",
+        "1.2M users in 7 months — Malaysia's fastest-growing digital bank",
+        "🏆 Best AI-Powered Customer Experience, Asian Banker 2026",
+      ],
+      story: [
+        "Ryt Bank is Malaysia's next-generation digital bank (YTL × Sea Ltd), and Ryt AI is the ILMU-powered assistant at its heart. Customers transfer money, pay and split bills, and get financial guidance by simply asking in natural language — the AI does the banking.",
+        "I project-managed Ryt AI from implementation through launch and into live support — the full lifecycle of putting a language model in front of 1.2 million banking customers, where mistakes aren't an option.",
+      ],
+      wins: [
+        "1.2 million users within ~7 months of the August 2025 launch — Malaysia's fastest-growing digital bank",
+        "25M+ transactions processed; monthly volumes grew over 35×",
+        "Nearly half of all users bank through the AI — adoption across every age group, including 50+",
+        "Best AI-Powered Customer Experience & Engagement Initiative in Malaysia — The Asian Banker Malaysia Awards 2026",
+      ],
       links: [
         { label: "App Store", href: "https://apps.apple.com/my/app/ryt-bank-ai-powered-bank/id6480042570" },
         { label: "Google Play", href: "https://play.google.com/store/apps/details?id=my.rytbank.app&hl=en-US" },
@@ -48,8 +77,20 @@ const TECH = {
     },
     {
       title: "ILMUchat — the AI that speaks Malaysian",
-      text: "Freshly launched: Malaysia's first multimodal AI assistant fluent in Bahasa Melayu, Manglish, and local dialects — text, voice, and images. 15,000 users and climbing.",
       tag: "AI",
+      bullets: [
+        "Malaysia's first multimodal AI assistant",
+        "Fluent in Bahasa Melayu, Manglish & local dialects",
+        "15,000 users and climbing since launch",
+      ],
+      story: [
+        "ILMUchat is the consumer face of ILMU — Malaysia's first AI assistant that genuinely speaks Malaysian, from formal Bahasa Melayu to Manglish to dialects like Kelate. Text, voice, and images, with data kept in Malaysia.",
+        "Freshly launched and growing — 15,000 users so far.",
+      ],
+      wins: [
+        "First AI assistant built for how Malaysians actually talk",
+        "15k users within weeks of launch",
+      ],
       links: [
         { label: "ilmu.ai", href: "https://www.ilmu.ai/" },
         { label: "App Store", href: "https://apps.apple.com/my/app/ilmuchat/id6748936268" },
@@ -58,8 +99,21 @@ const TECH = {
     },
     {
       title: "Frog VLE & Launchpad — edtech at national scale",
-      text: "At FrogAsia, ran the national Virtual Learning Environment ecosystem serving over 10 million students nationwide, and delivered Launchpad — a handheld learning-assistant app with 1M+ downloads across Android and iOS.",
       tag: "EDTECH",
+      bullets: [
+        "Ran the national Virtual Learning Environment ecosystem",
+        "10M+ students nationwide",
+        "Launchpad app: 1M+ downloads on Android & iOS",
+      ],
+      story: [
+        "At FrogAsia, we ran the national Virtual Learning Environment ecosystem — the digital classroom for over 10 million students across Malaysia. I managed continuous-improvement programmes and automated the user-testing and feedback pipelines that kept it evolving.",
+        "We also built Launchpad, a handheld learning-assistant app that put the VLE in students' pockets — over a million downloads across Android and iOS.",
+      ],
+      wins: [
+        "10M+ students served nationwide",
+        "Launchpad: 1M+ downloads across both app stores",
+        "Volunteered with Teach for Malaysia to teach low-income communities in KL",
+      ],
       links: [
         { label: "App Store", href: "https://apps.apple.com/my/app/launchpad-frogplay/id1441749509" },
         { label: "Google Play", href: "https://play.google.com/store/apps/details?id=com.frogeducationsdnbhd.play&hl=en" },
@@ -67,13 +121,27 @@ const TECH = {
     },
     {
       title: "Automation as a habit",
-      text: "Automated user-testing flows, feedback triage, and customer data analysis — because a process you run twice by hand is a process you should have scripted.",
       tag: "OPS",
+      bullets: [
+        "Automated user-testing flows & feedback triage",
+        "Automated customer data collection & analysis",
+        "Rule: run it twice by hand → script it",
+      ],
+      story: [
+        "Across every role, the pattern repeats: find the process everyone tolerates doing manually, and automate it. User-testing flows, feedback collection and prioritisation, customer acquisition and retention analytics — all turned from chores into pipelines.",
+      ],
     },
     {
       title: "10+ ERP deliveries",
-      text: "Led ERP software projects end-to-end at Onnet — conception to go-live — while doubling as marketing lead for two SaaS products.",
       tag: "DELIVERY",
+      bullets: [
+        "10+ ERP projects, conception to go-live",
+        "Marketing lead for 2 SaaS products",
+        "Led developers, BAs & support staff",
+      ],
+      story: [
+        "At Onnet, I managed over ten ERP implementations end-to-end while doubling as marketing lead for two SaaS products — building their initial brands and taking them to market. I also designed and ran application training for staff and customers, and chaired sales and requirements discussions on high-value leads.",
+      ],
     },
   ],
   /* Gantt timeline — start/end are decimal years; end: null = present */
