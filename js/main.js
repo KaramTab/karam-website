@@ -225,11 +225,11 @@ function wirePage() {
 
 /* --- TECH --- */
 
+/* kanban lanes are statuses (like a real board); domains become chips on the tickets */
 const BOARD_COLUMNS = [
-  { label: "Artificial Intelligence", tags: ["AI"] },
-  { label: "FinTech", tags: ["FINTECH"] },
-  { label: "EdTech", tags: ["EDTECH"] },
-  { label: "Ops & Delivery", tags: ["OPS", "DELIVERY"] },
+  { lane: "inflight", label: "In Flight", pill: "● IN FLIGHT", pillClass: "s-inflight" },
+  { lane: "shipped", label: "Shipped & Scaled", pill: "✓ SHIPPED", pillClass: "s-shipped" },
+  { lane: "practice", label: "Standard Practice", pill: "∞ EVERGREEN", pillClass: "s-evergreen" },
 ];
 
 function renderTech() {
@@ -259,15 +259,18 @@ function renderTech() {
       </div>
     </div>`).join("");
 
-  /* kanban board: one column per domain, every ticket shipped */
+  /* kanban board: status lanes, domain chips on tickets */
   const board = BOARD_COLUMNS.map((col) => {
-    const items = TECH.highlights.map((h, i) => [h, i]).filter(([h]) => col.tags.includes(h.tag));
+    const items = TECH.highlights.map((h, i) => [h, i]).filter(([h]) => h.lane === col.lane);
     return `
-    <div class="kcol">
+    <div class="kcol kcol-${col.lane}">
       <div class="kcol-head mono"><span>${esc(col.label)}</span><span class="kcount">${items.length}</span></div>
       ${items.map(([h, i]) => `
         <article class="ticket tcard-click" data-modal="${i}" tabindex="0" role="button" aria-label="Expand ${esc(h.title)}">
-          <div class="ticket-top mono"><span class="ticket-id">KRM-${101 + i}</span><span class="ticket-status">✓ SHIPPED</span></div>
+          <div class="ticket-top mono">
+            <span class="ticket-id">KRM-${101 + i}<b class="dom dom-${esc(h.tag)}">${esc(h.tag)}</b></span>
+            <span class="ticket-status ${col.pillClass}">${col.pill}</span>
+          </div>
           <h3>${esc(h.title)}</h3>
           <ul class="tcard-bullets">${h.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>
           ${linksRow(h.links)}
@@ -292,7 +295,7 @@ function renderTech() {
     </section>
 
     <section class="section">
-      <h2 class="sec-title mono">/the-board — <span class="dim">a PM's portfolio, everything in the only column that matters. click a ticket.</span></h2>
+      <h2 class="sec-title mono">/the-board — <span class="dim">nothing blocked, nothing in review. click a ticket.</span></h2>
       <div class="kanban">${board}</div>
     </section>
 
@@ -648,6 +651,28 @@ function route() {
   else { currentRoute = ""; renderLanding(); }
   window.scrollTo(0, 0);
 }
+
+/* ---------- theme: follows the system until the user picks one ---------- */
+
+const themeToggle = document.getElementById("themeToggle");
+const sysLight = window.matchMedia("(prefers-color-scheme: light)");
+let themePref = localStorage.getItem("theme"); // 'light' | 'dark' | null = follow system
+
+function currentTheme() {
+  return themePref || (sysLight.matches ? "light" : "dark");
+}
+function refreshTheme() {
+  document.body.classList.toggle("light", currentTheme() === "light");
+  themeToggle.textContent = currentTheme() === "light" ? "🌙" : "☀️";
+  themeToggle.title = currentTheme() === "light" ? "Switch to dark" : "Switch to light";
+}
+themeToggle.addEventListener("click", () => {
+  themePref = currentTheme() === "light" ? "dark" : "light";
+  localStorage.setItem("theme", themePref);
+  refreshTheme();
+});
+sysLight.addEventListener("change", refreshTheme);
+refreshTheme();
 
 window.addEventListener("hashchange", route);
 route();

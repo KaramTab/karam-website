@@ -45,6 +45,7 @@ const TECH = {
   highlights: [
     {
       title: "ILMU — Malaysia's AI",
+      lane: "inflight",
       tag: "AI",
       bullets: [
         "Malaysia's own sovereign, multimodal AI model",
@@ -63,6 +64,7 @@ const TECH = {
     },
     {
       title: "Ryt AI — banking in plain language",
+      lane: "shipped",
       tag: "FINTECH",
       bullets: [
         "Project-managed implementation → launch → live support",
@@ -86,6 +88,7 @@ const TECH = {
     },
     {
       title: "ILMUchat — the AI that speaks Malaysian",
+      lane: "inflight",
       tag: "AI",
       bullets: [
         "Malaysia's first multimodal AI assistant",
@@ -108,6 +111,7 @@ const TECH = {
     },
     {
       title: "Frog VLE & Launchpad — edtech at national scale",
+      lane: "shipped",
       tag: "EDTECH",
       bullets: [
         "Ran the national Virtual Learning Environment ecosystem",
@@ -130,6 +134,7 @@ const TECH = {
     },
     {
       title: "Automation as a habit",
+      lane: "practice",
       tag: "OPS",
       bullets: [
         "Automated user-testing flows & feedback triage",
@@ -142,6 +147,7 @@ const TECH = {
     },
     {
       title: "10+ ERP deliveries",
+      lane: "practice",
       tag: "DELIVERY",
       bullets: [
         "10+ ERP projects, conception to go-live",
