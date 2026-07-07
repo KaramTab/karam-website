@@ -28,8 +28,15 @@ const TECH = {
     "Programme Manager, AI @ YTL AI Labs",
     "> current_mission",
     "Helping build ILMU — Malaysia's own AI",
-    "> shipped_recently",
-    "Ryt AI — a bank you can talk to (1.2M users)",
+    "> shipped --highlights",
+  ],
+  /* the terminal types these one at a time, on a loop */
+  shipped: [
+    "Launched ILMU to Malaysia with the PMX — Aug 2025",
+    "Ryt AI — a bank you can talk to · 1.2M users",
+    "ILMUchat — Malaysia's AI, in 15,000 pockets",
+    "Best AI-Powered CX — Asian Banker Awards 2026",
+    "Frog VLE: 10M students · Launchpad: 1M+ downloads",
   ],
   summary:
     "Ten years of turning ambitious, messy, cross-functional work into shipped products — from ERP rollouts and a national education platform to a bank you can talk to. I'm the person who builds the framework, automates the boring parts, and keeps twenty workstreams honest.",

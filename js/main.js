@@ -225,9 +225,18 @@ function wirePage() {
 
 /* --- TECH --- */
 
+const BOARD_COLUMNS = [
+  { label: "Artificial Intelligence", tags: ["AI"] },
+  { label: "FinTech", tags: ["FINTECH"] },
+  { label: "EdTech", tags: ["EDTECH"] },
+  { label: "Ops & Delivery", tags: ["OPS", "DELIVERY"] },
+];
+
 function renderTech() {
   document.body.dataset.view = "tech";
-  const years = { min: 2016, max: new Date().getFullYear() + 1 };
+  const now = new Date();
+  const nowY = now.getFullYear() + (now.getMonth() + 0.5) / 12;
+  const years = { min: 2016, max: now.getFullYear() + 1 };
   const span = years.max - years.min;
   const pct = (y) => (((y ?? years.max) - years.min) / span) * 100;
 
@@ -236,25 +245,43 @@ function renderTech() {
     ticks.push(`<span class="gantt-tick" style="left:${pct(y)}%">${y}</span>`);
   }
 
-  const rows = TECH.career.map((c) => `
+  /* a proper Gantt reads top-down: earliest engagement first, cascading to today */
+  const rows = TECH.career.slice().reverse().map((c, i) => `
     <div class="gantt-row">
       <div class="gantt-label">
         <strong>${esc(c.role)}</strong>
         <span>${esc(c.org)}</span>
       </div>
       <div class="gantt-track">
-        <div class="gantt-bar ${c.end === null ? "ongoing" : ""}" style="left:${pct(c.start)}%; width:${pct(c.end) - pct(c.start)}%">
+        <div class="gantt-bar ${c.end === null ? "ongoing" : ""}" style="left:${pct(c.start)}%; width:${pct(c.end) - pct(c.start)}%; animation-delay:${0.15 + i * 0.18}s">
           <span class="gantt-note">${esc(c.note)}</span>
         </div>
       </div>
     </div>`).join("");
+
+  /* kanban board: one column per domain, every ticket shipped */
+  const board = BOARD_COLUMNS.map((col) => {
+    const items = TECH.highlights.map((h, i) => [h, i]).filter(([h]) => col.tags.includes(h.tag));
+    return `
+    <div class="kcol">
+      <div class="kcol-head mono"><span>${esc(col.label)}</span><span class="kcount">${items.length}</span></div>
+      ${items.map(([h, i]) => `
+        <article class="ticket tcard-click" data-modal="${i}" tabindex="0" role="button" aria-label="Expand ${esc(h.title)}">
+          <div class="ticket-top mono"><span class="ticket-id">KRM-${101 + i}</span><span class="ticket-status">✓ SHIPPED</span></div>
+          <h3>${esc(h.title)}</h3>
+          <ul class="tcard-bullets">${h.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>
+          ${linksRow(h.links)}
+          <span class="tcard-more mono">expand →</span>
+        </article>`).join("")}
+    </div>`;
+  }).join("");
 
   app.innerHTML = `
   ${pageHeader("tech")}
   <main class="page page-tech">
     <section class="hero-tech">
       <div class="terminal" aria-label="terminal introduction">
-        <div class="term-bar"><i></i><i></i><i></i><span class="mono">karam@ytl-ai-labs:~</span></div>
+        <div class="term-bar"><i></i><i></i><i></i><span class="mono">Karam/AI-Programme-Manager-Professional;~</span></div>
         <pre class="term-body mono" id="term"></pre>
       </div>
       <div class="hero-tech-copy">
@@ -265,17 +292,8 @@ function renderTech() {
     </section>
 
     <section class="section">
-      <h2 class="sec-title mono">/highlights — <span class="dim">click a card for the full story</span></h2>
-      <div class="cards-grid">
-        ${TECH.highlights.map((h, i) => `
-          <article class="tcard tcard-click" data-modal="${i}" tabindex="0" role="button" aria-label="Expand ${esc(h.title)}">
-            <span class="tcard-tag mono">${esc(h.tag)}</span>
-            <h3>${esc(h.title)}</h3>
-            <ul class="tcard-bullets">${h.bullets.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>
-            ${linksRow(h.links)}
-            <span class="tcard-more mono">expand →</span>
-          </article>`).join("")}
-      </div>
+      <h2 class="sec-title mono">/the-board — <span class="dim">a PM's portfolio, everything in the only column that matters. click a ticket.</span></h2>
+      <div class="kanban">${board}</div>
     </section>
 
     <section class="section">
@@ -283,6 +301,7 @@ function renderTech() {
       <div class="gantt">
         <div class="gantt-axis">${ticks.join("")}</div>
         ${rows}
+        <div class="gantt-today-wrap" aria-hidden="true"><i class="gantt-today" style="left:${pct(nowY)}%"><span class="mono">today</span></i></div>
       </div>
       <p class="gantt-hint mono">hover the bars ↑</p>
     </section>
@@ -336,16 +355,49 @@ function renderTech() {
 function typeTerminal() {
   const el = document.getElementById("term");
   if (!el) return;
-  const lines = TECH.heroLines;
-  let li = 0, ci = 0, out = "";
-  (function tick() {
-    if (li >= lines.length) { el.textContent = out; return; }
-    const line = lines[li];
-    ci++;
-    if (ci > line.length) { out += line + "\n"; li++; ci = 0; setTimeout(tick, line.startsWith(">") ? 120 : 420); }
-    else { el.textContent = out + line.slice(0, ci) + "▌"; setTimeout(tick, line.startsWith(">") ? 34 : 12); return; }
-    el.textContent = out + "▌";
+  const HOLD = 2400, TYPE = 26, DEL = 11;
+  let out = "";
+  const put = (t) => { el.textContent = out + t + "▌"; };
+
+  const typeLine = (line, speed, done) => {
+    let i = 0;
+    (function step() {
+      if (!el.isConnected) return; // page changed — stop this loop
+      i++;
+      put(line.slice(0, i));
+      if (i < line.length) setTimeout(step, speed);
+      else done();
+    })();
+  };
+
+  /* intro lines, typed once */
+  let li = 0;
+  (function nextIntro() {
+    if (!el.isConnected) return;
+    if (li >= TECH.heroLines.length) { cycle(0); return; }
+    const line = TECH.heroLines[li++];
+    typeLine(line, line.startsWith(">") ? 30 : 12, () => {
+      out += line + "\n";
+      setTimeout(nextIntro, line.startsWith(">") ? 110 : 380);
+    });
   })();
+
+  /* then cycle through shipped achievements forever */
+  function cycle(a) {
+    if (!el.isConnected) return;
+    const line = TECH.shipped[a % TECH.shipped.length];
+    typeLine(line, TYPE, () =>
+      setTimeout(() => {
+        let i = line.length;
+        (function del() {
+          if (!el.isConnected) return;
+          i -= 2;
+          if (i > 0) { put(line.slice(0, i)); setTimeout(del, DEL); }
+          else { put(""); setTimeout(() => cycle(a + 1), 300); }
+        })();
+      }, HOLD)
+    );
+  }
 }
 
 /* --- ARTS --- */
