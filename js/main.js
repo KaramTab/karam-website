@@ -182,7 +182,7 @@ function pageHeader(side) {
       : `<button class="btn-solid" data-print="resume">Résumé PDF</button>`;
   return `
   <header class="page-head">
-    <a class="head-name" href="#/" data-nav="">${esc(PROFILE.name)}</a>
+    <a class="head-name" href="#/" data-nav="">${esc(side === "tech" ? PROFILE.proName : PROFILE.name)}</a>
     <nav class="head-actions">
       <button class="btn-ghost" data-share="${side}">Share this side</button>
       ${mainBtn}
@@ -210,7 +210,7 @@ function pageFooter(side) {
   <footer class="page-foot">
     <p class="foot-tag">${side === "tech" ? "This site was project-managed, obviously." : "No intermission. Scroll again from the top."}</p>
     <nav class="foot-links">${links.map(([t, h]) => `<a href="${h}" target="_blank" rel="noopener">${t}</a>`).join("")}</nav>
-    <p class="foot-copy">© ${new Date().getFullYear()} ${esc(PROFILE.name)} · ${esc(PROFILE.location)}</p>
+    <p class="foot-copy">© ${new Date().getFullYear()} ${esc((side === "tech" ? PROFILE.proName : PROFILE.name))} · ${esc(PROFILE.location)}</p>
   </footer>`;
 }
 
@@ -556,7 +556,7 @@ function renderResume() {
   ${printBar("#/tech")}
   <main class="print-doc resume-doc">
     <header class="r-head">
-      <h1 class="serif">${esc(PROFILE.name)}</h1>
+      <h1 class="serif">${esc(PROFILE.proName)}</h1>
       <p class="r-title">${esc(TECH.role)} · ${esc(TECH.org)}</p>
       <p class="r-contact">${esc(PROFILE.email)} &nbsp;·&nbsp; linkedin.com/in/karam-altabba &nbsp;·&nbsp; ${esc(PROFILE.location)}</p>
     </header>
@@ -649,6 +649,11 @@ function route() {
   else if (h === "resume") { currentRoute = "resume"; renderResume(); }
   else if (h === "comp-card") { currentRoute = "comp-card"; renderCompPrint(); }
   else { currentRoute = ""; renderLanding(); }
+  document.title = currentRoute === "tech" || currentRoute === "resume"
+    ? `${PROFILE.proName} — ${TECH.role}`
+    : currentRoute === "arts" || currentRoute === "comp-card"
+      ? `${PROFILE.name} — Writer, Director & Actor`
+      : "Karam Tabba — I run programmes by day. I appear in them by night.";
   window.scrollTo(0, 0);
 }
 

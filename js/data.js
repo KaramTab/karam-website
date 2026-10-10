@@ -5,7 +5,8 @@
    ============================================================ */
 
 const PROFILE = {
-  name: "Karam Tabba",
+  name: "Karam Tabba", // creative name (landing page, arts side)
+  proName: "Karam Altabaa", // passport name (tech side, résumé)
   tagline: "I run programmes by day. I appear in them by night.",
   email: "Karamtabba@gmail.com",
   linkedin: "https://www.linkedin.com/in/karam-altabba/",
