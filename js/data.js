@@ -340,16 +340,16 @@ const ARTS = {
       id: "his-story",
       tags: ["written","acted"],
       title: "His Story",
-      role: "Actor & Writer — “I Got Busy”",
+      role: "Writer & Actor — wrote “I Got Busy”",
       dates: "Feb 2023",
       venue: "klpac",
       company: "The Actors Studio Seni Teater Rakyat × Big Nose Productions",
       synopsis:
-        "Eight monologues by young writers on what it is to be him. Karam wrote and performed “I Got Busy” — one of the eight.",
+        "Eight monologues by young writers on what it is to be him. Karam wrote “I Got Busy” — one of the eight — and performed another writer’s piece.",
       link: "https://www.cloudjoi.com/shows/his-story",
       gallery: [],
       more: [
-        "Presented by The Actors Studio Seni Teater Rakyat and klpac in collaboration with Big Nose Productions. Karam pulled double duty: playwright of one monologue and performer in the ensemble.",
+        "Presented by The Actors Studio Seni Teater Rakyat and klpac in collaboration with Big Nose Productions. Karam pulled double duty: he wrote one of the monologues and performed another writer’s.",
       ],
     },
     {
