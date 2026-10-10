@@ -267,9 +267,10 @@ function renderTech() {
         <span>${esc(c.org)}</span>
       </div>
       <div class="gantt-track">
-        <div class="gantt-bar ${c.end === null ? "ongoing" : ""}" style="left:${pct(c.start)}%; width:${pct(c.end) - pct(c.start)}%; animation-delay:${0.15 + i * 0.18}s">
+        <div class="gantt-bar ${c.end === null ? "ongoing" : ""}" data-from="${pct(c.start)}" data-to="${pct(c.end)}" style="left:${pct(c.start)}%; width:${pct(c.end) - pct(c.start)}%; animation-delay:${0.15 + i * 0.18}s">
           <span class="gantt-note">${esc(c.note)}</span>
         </div>
+        ${(c.milestones || []).map((ms) => `<button type="button" class="gantt-ms" style="left:${pct(ms.at)}%" aria-label="${esc(ms.label)}"><span class="gantt-note">${esc(ms.label)}</span></button>`).join("")}
       </div>
     </div>`).join("");
 
@@ -293,6 +294,26 @@ function renderTech() {
     </div>`;
   }).join("");
 
+  /* the plan at a glance: schematic and not to scale; each bar opens its ticket */
+  const CP = [
+    { row: 0, from: 0, to: 24, label: "ERP deliveries", short: "ERP", status: "shipped", ticket: 5 },
+    { row: 1, from: 24, to: 50, label: "Frog VLE & Launchpad", short: "Frog VLE", status: "shipped", ticket: 3 },
+    { row: 2, from: 50, to: 100, label: "ILMU", status: "inflight", ticket: 0 },
+    { row: 3, from: 54, to: 74, label: "Ryt AI", status: "shipped", ticket: 1 },
+    { row: 3, from: 78, to: 100, label: "ILMUchat", status: "inflight", ticket: 2 },
+  ];
+  const CP_LINKS = [[0, 1], [1, 2], [2, 3], [2, 4]]; // source bar → bar that depends on it
+  const CP_ROW = 24, CP_PITCH = 38;
+  const cpHTML = `
+    <figure class="cp" aria-label="How the programmes connect (schematic)" style="height:${3 * CP_PITCH + CP_ROW}px">
+      ${CP.map((b, i) => `<button type="button" class="cp-bar ${b.status}" style="left:${b.from}%; width:${b.to - b.from}%; top:${b.row * CP_PITCH}px; --i:${i}" data-ticket="${b.ticket}"><span class="cp-full">${esc(b.label)}</span><span class="cp-short">${esc(b.short || b.label)}</span></button>`).join("")}
+      ${CP_LINKS.map(([s, t], i) => `<i class="cp-link" style="left:${CP[t].from}%; top:${CP[s].row * CP_PITCH + CP_ROW}px; height:${(CP[t].row - CP[s].row) * CP_PITCH - CP_ROW}px; --i:${i}"></i>`).join("")}
+    </figure>`;
+
+  /* a one-line status report, driven by the board below */
+  const inFlight = TECH.highlights.filter((h) => h.lane === "inflight").length;
+  const today = now.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
   app.innerHTML = `
   ${pageHeader("tech")}
   <main class="page page-tech">
@@ -305,11 +326,13 @@ function renderTech() {
         <p class="mono kicker-tech">// ${esc(TECH.role)} — ${esc(TECH.org)}</p>
         <h1>Ambitious, messy, cross-functional?<br><span class="accent">Shipped.</span></h1>
         <p class="lede">${esc(TECH.summary)}</p>
+        <p class="rag mono"><i class="rag-dot" aria-hidden="true"></i>Status green · ${inFlight} in flight, 0 blocked · updated ${today}</p>
       </div>
+      ${cpHTML}
     </section>
 
     <section class="section">
-      <h2 class="sec-title mono">/the-board — <span class="dim">nothing blocked, nothing in review. click a ticket.</span></h2>
+      <h2 class="sec-title mono">/the-board — <span class="dim">nothing blocked, nothing in review. click a ticket, or try to move one.</span></h2>
       <div class="kanban">${board}</div>
     </section>
 
@@ -366,7 +389,118 @@ function renderTech() {
     card.addEventListener("click", show);
     card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); } });
   });
+  wireCriticalPath();
+  wireBoardDrag();
+  drawGanttDeps();
   typeTerminal();
+}
+
+/* hero plan: each bar opens the matching ticket from the board */
+function wireCriticalPath() {
+  document.querySelectorAll(".cp-bar").forEach((bar) =>
+    bar.addEventListener("click", () => {
+      const card = document.querySelector(`.ticket[data-modal="${bar.dataset.ticket}"]`);
+      if (card) card.click();
+    })
+  );
+}
+
+/* board tickets can be picked up with a mouse, but status stays with the programme manager */
+const DROP_NOTES = {
+  "inflight>shipped": "Not shipped yet. It stays in flight.",
+  "inflight>practice": "That isn't a habit yet. Still in flight.",
+  "shipped>inflight": "Shipped means shipped. Reopening needs a change request.",
+  "shipped>practice": "Shipped, not standard practice. Yet.",
+};
+const laneOf = (el) => (el.className.match(/kcol-(\w+)/) || [])[1];
+
+function wireBoardDrag() {
+  document.querySelectorAll(".ticket").forEach((t) => {
+    let dragged = false;
+    t.addEventListener("click", (e) => { if (dragged) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+
+    t.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch" || e.button !== 0 || e.target.closest("a")) return;
+      const sx = e.clientX, sy = e.clientY;
+      const home = t.closest(".kcol");
+      let active = false, over = null;
+
+      const move = (ev) => {
+        const dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (!active) {
+          if (Math.hypot(dx, dy) < 6) return;
+          active = true;
+          t.classList.remove("snap");
+          t.classList.add("dragging");
+        }
+        t.style.transform = `translate(${dx}px, ${dy}px) rotate(1.4deg)`;
+        const col = document.elementsFromPoint(ev.clientX, ev.clientY).map((n) => n.closest && n.closest(".kcol")).find(Boolean) || null;
+        if (col !== over) {
+          if (over) over.classList.remove("drop");
+          over = col && col !== home ? col : null;
+          if (over) over.classList.add("drop");
+        }
+      };
+
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        if (over) over.classList.remove("drop");
+        if (!active) return;
+        dragged = true;
+        setTimeout(() => { dragged = false; }, 0);
+        if (over) {
+          const id = t.querySelector(".ticket-id").firstChild.textContent;
+          const from = laneOf(home), to = laneOf(over);
+          showToast(`${id}: ${DROP_NOTES[`${from}>${to}`] || "Habits don't move. They just keep running."}`);
+        }
+        t.classList.add("snap");
+        t.style.transform = "";
+        setTimeout(() => t.classList.remove("dragging", "snap"), 450);
+      };
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up, { once: true });
+    });
+  });
+}
+
+/* dependency arrows between the career bars, drawn from the track geometry (not the animated bars) */
+function drawGanttDeps() {
+  const g = document.querySelector(".gantt");
+  if (!g) return;
+  const NS = "http://www.w3.org/2000/svg";
+  let svg = g.querySelector(".gantt-deps");
+  if (!svg) {
+    svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "gantt-deps");
+    svg.setAttribute("aria-hidden", "true");
+    g.appendChild(svg);
+  }
+  const draw = () => {
+    if (!g.isConnected) return;
+    const gr = g.getBoundingClientRect();
+    svg.setAttribute("viewBox", `0 0 ${gr.width} ${gr.height}`);
+    const rows = [...g.querySelectorAll(".gantt-track")].map((tr) => {
+      const r = tr.getBoundingClientRect(), bar = tr.querySelector(".gantt-bar");
+      const x = (p) => r.left - gr.left + (r.width * p) / 100;
+      return { from: x(+bar.dataset.from), to: x(+bar.dataset.to), top: r.top - gr.top + 3, bottom: r.bottom - gr.top - 3 };
+    });
+    let d = "";
+    for (let i = 0; i < rows.length - 1; i++) {
+      const a = rows[i], b = rows[i + 1];
+      const mid = (a.bottom + b.top) / 2;
+      d += Math.abs(b.from - a.to) < 4
+        ? `M${b.from} ${a.bottom}V${b.top}`
+        : `M${a.to} ${a.bottom}V${mid}H${b.from}V${b.top}`;
+      d += `M${b.from - 3.5} ${b.top - 5}L${b.from} ${b.top}L${b.from + 3.5} ${b.top - 5}`;
+    }
+    svg.replaceChildren();
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d);
+    svg.appendChild(path);
+  };
+  draw();
+  if ("ResizeObserver" in window) new ResizeObserver(draw).observe(g);
 }
 
 function typeTerminal() {
@@ -583,13 +717,8 @@ function renderArts() {
     btn.addEventListener("click", () => open(compCardHTML()))
   );
 
-  /* spotlight follows the cursor in the hero */
-  const spot = document.getElementById("spot");
-  spot.addEventListener("pointermove", (e) => {
-    const r = spot.getBoundingClientRect();
-    spot.style.setProperty("--sx", `${((e.clientX - r.left) / r.width) * 100}%`);
-    spot.style.setProperty("--sy", `${((e.clientY - r.top) / r.height) * 100}%`);
-  });
+  /* lighting rig, runway and follow spot behind the hero (js/stage.js) */
+  mountStage(document.getElementById("spot"));
 }
 
 /* ---------- printable documents (PDF via the browser's print-to-PDF) ---------- */

@@ -170,6 +170,7 @@ const TECH = {
       org: "YTL AI Labs",
       start: 2024.0, end: null,
       period: "2024 – Present",
+      milestones: [{ at: 2025.62, label: "ILMU and Ryt AI launch · Aug 2025" }],
       note: "Promoted; FrogAsia became YTL AI Labs. Building ILMU, Malaysia's own AI · Ryt AI: implementation → launch → support · ILMUchat launch.",
       resumePoints: [
         "Programme management for ILMU — Malaysia's own sovereign, multimodal AI model (YTL AI Labs × Universiti Malaya) — across research, engineering, and deployment workstreams.",
