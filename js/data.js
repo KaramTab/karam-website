@@ -272,6 +272,7 @@ const ARTS = {
   shows: [
     {
       id: "forkbeard",
+      tags: ["directed"],
       featured: true,
       title: "Forkbeard: A Viking Musical Odyssey",
       role: "Director",
@@ -289,7 +290,26 @@ const ARTS = {
       ],
     },
     {
+      id: "relationshit-chronicles",
+      tags: ["written", "directed"],
+      title: "The Relationsh*t Chronicles: KL Edition",
+      role: "Co-writer & Director",
+      dates: "Oct 2026",
+      venue: "Indicine, klpac",
+      company: "Big Nose Productions",
+      synopsis:
+        "Ten performers, nine stories, one very honest look at how relationships fall apart: the ghoster, the gaslighter, the ex who still owes you RM400 since Raya. Stand-up-style comedy for grown-ups.",
+      link: "https://www.cloudjoi.com/shows/7121-the-relationsht-chronicles",
+      badge: "SOLD OUT",
+      gallery: [],
+      more: [
+        "Co-written with Fa Abdul and directed by Karam. Produced by Esther Kuan. Four shows over the weekend of 2–4 October 2026, and every one sold out.",
+        "Mature audiences only: strong language and adult humour. About 90 minutes, in English with plenty of local Malaysian flavour.",
+      ],
+    },
+    {
       id: "us",
+      tags: ["acted"],
       title: "US: A Journey of Love, Loss & Belonging",
       role: "Actor",
       dates: "Jun & Jul 2025 · two runs",
@@ -304,6 +324,7 @@ const ARTS = {
     },
     {
       id: "twisted",
+      tags: ["acted"],
       title: "TWISTED: A Different Kind of Fairy Tale",
       role: "Actor",
       dates: "Jul 2024",
@@ -316,6 +337,7 @@ const ARTS = {
     },
     {
       id: "his-story",
+      tags: ["written","acted"],
       title: "His Story",
       role: "Actor & Writer — “I Got Busy”",
       dates: "Feb 2023",
@@ -331,6 +353,7 @@ const ARTS = {
     },
     {
       id: "epic-game-show",
+      tags: ["written","acted"],
       title: "The Epic Game Show with Nuha & Karam",
       role: "Co-creator & Performer",
       dates: "Nov 2025",
@@ -346,6 +369,7 @@ const ARTS = {
     },
     {
       id: "short-sweet",
+      tags: ["written","directed"],
       title: "Short+Sweet Theatre Penang 2021",
       role: "Writer & Director",
       dates: "Dec 2021",
@@ -356,6 +380,7 @@ const ARTS = {
     },
     {
       id: "once-upon-a-time",
+      tags: ["acted"],
       title: "Once Upon A Time (Parts 2–5)",
       role: "Actor",
       dates: "2021 – 2022",
@@ -366,6 +391,7 @@ const ARTS = {
     },
     {
       id: "love-in-georgetown",
+      tags: ["acted"],
       title: "Love in Georgetown City",
       role: "Actor",
       dates: "Dec 2020",
@@ -375,6 +401,7 @@ const ARTS = {
     },
     {
       id: "tales-from-the-scars",
+      tags: ["acted"],
       title: "Tales from the Scars",
       role: "Actor",
       dates: "Dec 2020",

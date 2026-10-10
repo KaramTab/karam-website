@@ -352,19 +352,25 @@ body[data-view="arts"] .modal-overlay { background: #0a0603d9; }
 .pb-art { position: relative; aspect-ratio: 3 / 2; background: linear-gradient(160deg, #241505, #120c08); overflow: hidden; margin: 0; flex-shrink: 0; }
 .playbill.featured .pb-art { aspect-ratio: auto; }
 .pb-art img { width: 100%; height: 100%; object-fit: cover; }
-.pb-monogram {
-  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-  font-size: 5rem; color: #e8a13d2f; border-bottom: 1px solid #3a2a1a;
+.pb-poster {
+  position: absolute; inset: 0; display: none; flex-direction: column; justify-content: flex-end; gap: .35rem;
+  padding: clamp(1.4rem, 3vw, 2.2rem); text-align: left;
+  color: hsl(var(--h) 62% 88%);
   background:
-    radial-gradient(ellipse 60% 60% at 50% 30%, #e8a13d14, transparent 70%),
-    repeating-linear-gradient(0deg, transparent 0 5px, #ffffff03 5px 6px);
+    radial-gradient(ellipse 80% 60% at 20% 0%, hsl(var(--h) 55% 34% / .55), transparent 70%),
+    linear-gradient(165deg, hsl(var(--h) 46% 19%), hsl(var(--h) 40% 7%));
 }
+.pb-poster::before { content: ""; position: absolute; inset: .7rem; border: 1px solid hsl(var(--h) 55% 62% / .35); pointer-events: none; }
+.pb-poster-year { font-size: .95rem; opacity: .75; }
+.pb-poster-title { font-size: clamp(1.9rem, 4.6vw, 3.2rem); font-weight: 600; line-height: .98; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.pb-poster-sub { font-size: .95rem; line-height: 1.3; opacity: .8; max-width: 22ch; }
+.playbill.featured .pb-poster-title { font-size: clamp(2.6rem, 5.6vw, 4.2rem); }
 .pb-art.no-img img { display: none; }
-.pb-art.no-img .pb-monogram { display: flex; }
+.pb-art.no-img .pb-poster { display: flex; }
 
 .pb-body { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: .45rem; flex: 1; }
 .pb-badge { position: absolute; top: .9rem; right: -2.1rem; transform: rotate(38deg); background: var(--arts-red); color: #f7e2c8; font-size: .62rem; letter-spacing: .18em; padding: .28rem 2.6rem; z-index: 3; }
-.pb-role { font-size: .68rem; letter-spacing: .22em; color: var(--arts-accent); }
+.pb-role { font-size: .95rem; color: var(--arts-accent); }
 .pb-title { font-size: 1.35rem; font-weight: 500; line-height: 1.15; }
 .pb-meta { font-size: .82rem; color: var(--arts-dim); letter-spacing: .03em; }
 .pb-company { font-size: .85rem; color: var(--arts-dim); }
@@ -464,7 +470,7 @@ body.light #themeToggle { border-color: #00000025; background: #ffffffcc; }
 
 body.light {
   --tech-bg: #eef2f8; --tech-bg2: #ffffff; --tech-ink: #182230; --tech-dim: #52627b; --tech-accent: #007fc2; --tech-line: #d3ddea;
-  --arts-bg: #f8f0e2; --arts-bg2: #fffdf8; --arts-ink: #2b1d10; --arts-dim: #8d7a58; --arts-accent: #a96e14;
+  --arts-bg: #f8f0e2; --arts-bg2: #fffdf8; --arts-ink: #2b1d10; --arts-dim: #6c5a3c; --arts-accent: #8f5a0b;
   background: #e9e4da; color: #222;
 }
 body.light .landing-center { background: #ffffffe0; border-color: #00000012; box-shadow: 0 24px 70px #00000030; }
@@ -491,7 +497,8 @@ body.light .term-body::selection { background: #007fc2; color: #fff; }
 body.light .playbill { border-color: #e4d5b8; }
 body.light .playbill:hover { box-shadow: 0 18px 50px #00000022; }
 body.light .pb-art { background: linear-gradient(160deg, #f3e6cf, #eedfc4); }
-body.light .pb-monogram { color: #a96e1445; border-bottom-color: #e4d5b8; background: radial-gradient(ellipse 60% 60% at 50% 30%, #a96e1412, transparent 70%); }
+body.light .pb-poster { color: hsl(var(--h) 60% 16%); background: radial-gradient(ellipse 80% 60% at 20% 0%, hsl(var(--h) 70% 92% / .8), transparent 70%), linear-gradient(165deg, hsl(var(--h) 52% 80%), hsl(var(--h) 44% 66%)); }
+body.light .pb-poster::before { border-color: hsl(var(--h) 55% 22% / .35); }
 body.light .pb-syn { color: #5f5138; }
 body.light .side-block { border-color: #e4d5b8; }
 body.light .slider { background: linear-gradient(160deg, #f3e6cf, #eedfc4); }
@@ -506,6 +513,11 @@ body.light #toast { background: #16202b; color: #ffffff; }
 body.light #transition.t-tech .panel { background: linear-gradient(180deg, #ffffff, #eef2f8); }
 body.light #transition.t-split .panel.left { background: #eef2f8; }
 body.light #transition.t-split .panel.right { background: #f8f0e2; }
+
+/* touch screens never hover, so keep the "open details" cue visible */
+@media (hover: none) {
+  .tcard-more, .playbill .pb-open { opacity: .85; transform: none; }
+}
 
 /* ============ RESPONSIVE ============ */
 
@@ -577,3 +589,25 @@ body.light[data-view="arts"]::after { opacity: .05; }
 body[data-view="arts"] :focus-visible { outline-color: var(--arts-accent); }
 .half:focus-visible { outline: none; }
 .btn-ghost:focus-visible, .btn-solid:focus-visible, .modal-close:focus-visible { outline-offset: 2px; }
+/* ============ SHOW TAGS & FILTER ============ */
+.pb-filters { display: flex; flex-wrap: wrap; gap: .5rem; margin: -.8rem 0 1.6rem; }
+.pb-filter {
+  font-family: var(--serif); font-size: .95rem; color: var(--arts-dim); background: transparent;
+  border: 1px solid #4a3826; border-radius: 999px; padding: .4rem .95rem; transition: .2s;
+}
+.pb-filter:hover { border-color: var(--arts-accent); color: var(--arts-accent); }
+.pb-filter.on { background: var(--arts-accent); border-color: var(--arts-accent); color: #241505; }
+.pb-filter:focus-visible { outline: 2px solid var(--arts-accent); outline-offset: 2px; }
+.pb-filter-n { opacity: .7; font-size: .85em; margin-left: .15rem; }
+body.light .pb-filter { border-color: #cdb88f; }
+body.light .pb-filter.on { color: #ffffff; }
+
+.pb-tags { display: flex; flex-wrap: wrap; gap: .35rem; list-style: none; margin-bottom: .15rem; }
+.pb-tag { font-size: .74rem; padding: .12rem .6rem; border-radius: 999px; border: 1px solid; font-family: var(--sans); font-weight: 500; }
+.pb-tag-directed { color: #e8a13d; border-color: #e8a13d66; background: #e8a13d14; }
+.pb-tag-written { color: #7fc4e6; border-color: #7fc4e666; background: #7fc4e614; }
+.pb-tag-acted { color: #e59a9a; border-color: #e59a9a66; background: #e59a9a14; }
+body.light .pb-tag-directed { color: #8f5a0b; border-color: #8f5a0b66; background: #8f5a0b12; }
+body.light .pb-tag-written { color: #1b6a92; border-color: #1b6a9266; background: #1b6a9212; }
+body.light .pb-tag-acted { color: #a33d3d; border-color: #a33d3d66; background: #a33d3d12; }
+.playbill[hidden] { display: none; }

@@ -419,18 +419,46 @@ function typeTerminal() {
 
 /* --- ARTS --- */
 
+/* typeset stand-in poster: shown until assets/img/shows/<id>.jpg exists */
+const POSTER_HUES = [205, 28, 355, 150, 275];
+function posterHTML(s, i) {
+  const [main, ...rest] = s.title.split(/:\s+/);
+  const year = (s.dates.match(/\d{4}/) || [""])[0];
+  return `<figcaption class="pb-poster" style="--h:${POSTER_HUES[i % POSTER_HUES.length]}" aria-hidden="true">
+        <span class="pb-poster-year serif-it">${esc(year)}</span>
+        <span class="pb-poster-title serif">${esc(main)}</span>
+        ${rest.length ? `<span class="pb-poster-sub serif-it">${esc(rest.join(": "))}</span>` : ""}
+      </figcaption>`;
+}
+
+/* what Karam did on each show; drives the tag pills and the filter */
+const SHOW_TAGS = { directed: "Directed", written: "Written", acted: "Acted" };
+const tagPills = (s) =>
+  `<ul class="pb-tags" aria-label="Karam's contribution">${(s.tags || []).map((t) => `<li class="pb-tag pb-tag-${t}">${SHOW_TAGS[t]}</li>`).join("")}</ul>`;
+
+function showFilterHTML() {
+  const count = (t) => ARTS.shows.filter((s) => (s.tags || []).includes(t)).length;
+  const chip = (key, label, n, on) =>
+    `<button type="button" class="pb-filter${on ? " on" : ""}" data-filter="${key}" aria-pressed="${on}">${label} <span class="pb-filter-n">${n}</span></button>`;
+  return `<div class="pb-filters" role="group" aria-label="Filter shows by what I did">
+    ${chip("all", "All shows", ARTS.shows.length, true)}
+    ${Object.entries(SHOW_TAGS).map(([k, label]) => chip(k, label, count(k), false)).join("")}
+  </div>`;
+}
+
 function showCard(s, i) {
   const badge = s.badge ? `<span class="pb-badge">${esc(s.badge)}</span>` : "";
   const company = s.company ? `<p class="pb-company serif-it">${esc(s.company)}</p>` : "";
   return `
-  <article class="playbill ${s.featured ? "featured" : ""}" data-show="${i}" tabindex="0" role="button" aria-label="Open details for ${esc(s.title)}">
+  <article class="playbill ${s.featured ? "featured" : ""}" data-show="${i}" data-tags="${(s.tags || []).join(" ")}" tabindex="0" role="button" aria-label="Open details for ${esc(s.title)}">
     <figure class="pb-art">
       ${img(`assets/img/shows/${s.id}.jpg`, s.title + " poster")}
-      <figcaption class="pb-monogram serif" aria-hidden="true">${esc(s.title.slice(0, 1))}</figcaption>
+      ${posterHTML(s, i)}
     </figure>
     <div class="pb-body">
       ${badge}
-      <p class="pb-role mono">${esc(s.role).toUpperCase()}</p>
+      ${tagPills(s)}
+      <p class="pb-role serif-it">${esc(s.role)}</p>
       <h3 class="pb-title serif">${esc(s.title)}</h3>
       <p class="pb-meta">${esc(s.dates)} · ${esc(s.venue)}</p>
       ${company}
@@ -476,6 +504,7 @@ function renderArts() {
 
     <section class="section">
       <h2 class="sec-title-arts serif">The Programme <span class="serif-it dim">— in order of applause</span></h2>
+      ${showFilterHTML()}
       <div class="playbills">
         ${ARTS.shows.map(showCard).join("")}
       </div>
@@ -513,6 +542,22 @@ function renderArts() {
   wirePage();
   const open = setupModal();
 
+  /* filter the programme by what I did on each show */
+  const filters = document.querySelectorAll(".pb-filter");
+  filters.forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.filter;
+      filters.forEach((b) => {
+        const on = b === btn;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", on);
+      });
+      document.querySelectorAll(".playbill").forEach((card) => {
+        card.hidden = key !== "all" && !card.dataset.tags.split(" ").includes(key);
+      });
+    })
+  );
+
   /* show detail modals with photo slider */
   document.querySelectorAll("[data-show]").forEach((card) => {
     const show = (e) => {
@@ -521,7 +566,8 @@ function renderArts() {
       const gallery = s.gallery && s.gallery.length ? s.gallery : [`assets/img/shows/${s.id}.jpg`];
       open(`
         ${sliderHTML(gallery, s.title)}
-        <p class="pb-role mono">${esc(s.role).toUpperCase()}</p>
+        ${tagPills(s)}
+        <p class="pb-role serif-it">${esc(s.role)}</p>
         <h3 class="modal-title serif">${esc(s.title)}</h3>
         <p class="pb-meta">${esc(s.dates)} · ${esc(s.venue)}${s.company ? " · " + esc(s.company) : ""}</p>
         <p class="modal-p">${esc(s.synopsis)}</p>
