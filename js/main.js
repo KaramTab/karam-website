@@ -71,7 +71,7 @@ function navigate(route) {
   transition.className = theme + " closing";
   setTimeout(() => {
     location.hash = route ? `#/${route}` : "#/";
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
     transition.className = theme + " opening";
     setTimeout(() => (transition.className = ""), 650);
   }, 450);
@@ -90,8 +90,11 @@ const modalShell = `
 function setupModal() {
   const overlay = document.getElementById("modal");
   const body = overlay.querySelector(".modal-body");
+  let lastFocus = null;
   const open = (html) => {
+    lastFocus = document.activeElement;
     body.innerHTML = html;
+    overlay.querySelector(".modal").setAttribute("aria-label", (body.querySelector(".modal-title") || {}).textContent || "Details");
     wireSlider(body);
     overlay.hidden = false;
     document.body.style.overflow = "hidden";
@@ -100,10 +103,21 @@ function setupModal() {
   const close = () => {
     overlay.hidden = true;
     document.body.style.overflow = "";
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
   };
   overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
   overlay.querySelector(".modal-close").addEventListener("click", close);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlay.hidden) close(); });
+  document.addEventListener("keydown", (e) => {
+    if (overlay.hidden) return;
+    if (e.key === "Escape") return close();
+    if (e.key !== "Tab") return;
+    /* keep Tab inside the dialog */
+    const f = [...overlay.querySelectorAll("a[href], button:not([disabled])")].filter((el) => el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   return open;
 }
 
@@ -639,6 +653,33 @@ document.addEventListener("click", (e) => {
   location.hash = "#/" + btn.dataset.print;
 });
 
+/* ---------- scroll reveal + reading progress ---------- */
+
+const REVEAL = ".terminal, .hero-tech-copy, .sec-title, .sec-title-arts, .kcol, .gantt, .skill-group, .edu-row, .cta-row, .playbill, .side-block, .stat";
+let revealIO = null;
+
+function initReveal() {
+  if (revealIO) revealIO.disconnect();
+  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.body.classList.add("reveal-ready");
+  revealIO = new IntersectionObserver((entries) => {
+    entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); revealIO.unobserve(en.target); } });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+  app.querySelectorAll(REVEAL).forEach((el) => {
+    const i = [...el.parentElement.children].filter((c) => c.matches(REVEAL)).indexOf(el);
+    el.style.setProperty("--d", Math.min(i * 0.08, 0.4) + "s");
+    el.classList.add("rv");
+    revealIO.observe(el);
+  });
+}
+
+const progress = document.getElementById("progress");
+function updateProgress() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  progress.style.transform = "scaleX(" + (max > 0 ? Math.min(scrollY / max, 1) : 0) + ")";
+}
+addEventListener("scroll", updateProgress, { passive: true });
+
 /* ---------- boot ---------- */
 
 function route() {
@@ -654,7 +695,9 @@ function route() {
     : currentRoute === "arts" || currentRoute === "comp-card"
       ? `${PROFILE.name} — Writer, Director & Actor`
       : "Karam Tabba — I run programmes by day. I appear in them by night.";
-  window.scrollTo(0, 0);
+  window.scrollTo({ top: 0, behavior: "instant" });
+  initReveal();
+  updateProgress();
 }
 
 /* ---------- theme: follows the system until the user picks one ---------- */
