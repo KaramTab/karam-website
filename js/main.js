@@ -6,6 +6,13 @@ const toast = document.getElementById("toast");
 
 /* ---------- helpers ---------- */
 
+/* storage can throw (sandboxed viewers, private modes) — never let that break the page */
+const store = {
+  get: (area, k) => { try { return window[area].getItem(k); } catch { return null; } },
+  set: (area, k, v) => { try { window[area].setItem(k, v); } catch {} },
+  del: (area, k) => { try { window[area].removeItem(k); } catch {} },
+};
+
 const esc = (s) =>
   String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -732,8 +739,8 @@ function printBar(backHash) {
 }
 
 function maybeAutoPrint() {
-  if (sessionStorage.getItem("autoprint")) {
-    sessionStorage.removeItem("autoprint");
+  if (store.get("sessionStorage", "autoprint")) {
+    store.del("sessionStorage", "autoprint");
     setTimeout(() => window.print(), 500);
   }
 }
@@ -824,7 +831,7 @@ function renderCompPrint() {
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-print]");
   if (!btn) return;
-  sessionStorage.setItem("autoprint", "1");
+  store.set("sessionStorage", "autoprint", "1");
   location.hash = "#/" + btn.dataset.print;
 });
 
@@ -879,7 +886,7 @@ function route() {
 
 const themeToggle = document.getElementById("themeToggle");
 const sysLight = window.matchMedia("(prefers-color-scheme: light)");
-let themePref = localStorage.getItem("theme"); // 'light' | 'dark' | null = follow system
+let themePref = store.get("localStorage", "theme"); // 'light' | 'dark' | null = follow system
 
 function currentTheme() {
   return themePref || (sysLight.matches ? "light" : "dark");
@@ -891,7 +898,7 @@ function refreshTheme() {
 }
 themeToggle.addEventListener("click", () => {
   themePref = currentTheme() === "light" ? "dark" : "light";
-  localStorage.setItem("theme", themePref);
+  store.set("localStorage", "theme", themePref);
   refreshTheme();
 });
 sysLight.addEventListener("change", refreshTheme);
