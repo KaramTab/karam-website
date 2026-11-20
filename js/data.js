@@ -62,7 +62,7 @@ const TECH = {
   now: "ILMU and ILMUchat are in flight. Ryt AI is live and supported.",
   /* Each highlight: short bullets on the ticket; clicking opens a modal
      with `story` paragraphs + `wins` achievement list.
-     Keep the array order: the critical-path strip refers to tickets by index. */
+     Keep the array order: the critical-path diagram (NET in main.js) refers to tickets by index. */
   highlights: [
     {
       title: "ILMU: Malaysia's own AI model",

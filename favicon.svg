@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- The landing-page seal, sized for a browser tab: same disc, rings, ring text and italic K.
+       Strokes and the K are a touch heavier than on the page so they survive at 16px. -->
+  <defs><path id="p" d="M60,60 m-42.5,0 a42.5,42.5 0 1,1 85,0 a42.5,42.5 0 1,1 -85,0"/></defs>
+  <circle cx="60" cy="60" r="57" fill="#f3f1ea" stroke="#16202a" stroke-width="3"/>
+  <circle cx="60" cy="60" r="51" fill="none" stroke="#16202a" stroke-width="1.8"/>
+  <circle cx="60" cy="60" r="33" fill="none" stroke="#16202a" stroke-width="1.8"/>
+  <text font-family="'Courier New', Courier, monospace" font-size="9.4" font-weight="700" fill="#16202a">
+    <textPath href="#p" textLength="262" lengthAdjust="spacing">ONE PERSON · TWO PROGRAMMES · </textPath>
+  </text>
+  <text x="60" y="81" text-anchor="middle" font-family="'Bodoni Moda', Didot, 'Bodoni 72', Georgia, serif" font-style="italic" font-weight="700" font-size="58" fill="#16202a">K</text>
+</svg>

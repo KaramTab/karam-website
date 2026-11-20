@@ -308,8 +308,23 @@ const BOARD_COLUMNS = [
   { lane: "practice", label: "Standard practice", pill: "∞ EVERGREEN", pillClass: "s-evergreen" },
 ];
 
+/* the network diagram: what each programme stood on. `ticket` is an index into TECH.highlights, so the
+   ID and status on each box come straight from the board and can't disagree with it. A box with no
+   `ticket` (just a `tag`) is a plain, unclickable box: it has no board entry, so no status either.
+   The first three form the chain and the rest all run on ILMU. Order matters: it's the reading
+   order on a phone, where the boxes stack. */
+const NET = [
+  { ticket: 5, name: "ERP deliveries", stat: "10+ go-lives", org: "Onnet" },
+  { ticket: 3, name: "Frog VLE and Launchpad", stat: "10M+ students", org: "FrogAsia" },
+  { ticket: 0, name: "ILMU", stat: "Malaysia's own AI model", org: "YTL AI Labs" },
+  { ticket: 1, name: "Ryt AI", stat: "1.2M users in about 7 months", org: "YTL AI Labs" },
+  { ticket: 2, name: "ILMUchat", stat: "15,000 users in the first weeks", org: "YTL AI Labs" },
+  { tag: "ENTERPRISE", name: "DutaILMU", stat: "Enterprise AI chatbot, with handover to a live agent", org: "YTL AI Labs" },
+];
+const NET_LINKS = [[0, 1], [1, 2], [2, 3], [2, 4], [2, 5]]; // [from, to]: "to" stood on "from"
+
 /* "a, b and c" */
-const prose = (arr) => (arr.length < 3 ? arr.join(" and ") : arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1]);
+const prose =(arr) => (arr.length < 3 ? arr.join(" and ") : arr.slice(0, -1).join(", ") + " and " + arr[arr.length - 1]);
 
 const secHead = (n, title, note) =>
   `<h2 class="sec-h"><span class="sec-n">${n}</span>${esc(title)}</h2>${note ? `<p class="sec-note">${esc(note)}</p>` : ""}`;
@@ -362,20 +377,24 @@ function renderTech() {
     </div>`;
   }).join("");
 
-  /* the plan at a glance: schematic and not to scale; each bar opens its ticket */
-  const CP = [
-    { row: 0, from: 0, to: 24, label: "ERP deliveries", short: "ERP", status: "shipped", ticket: 5 },
-    { row: 1, from: 24, to: 50, label: "Frog VLE & Launchpad", short: "Frog VLE", status: "shipped", ticket: 3 },
-    { row: 2, from: 50, to: 100, label: "ILMU", status: "inflight", ticket: 0 },
-    { row: 3, from: 54, to: 74, label: "Ryt AI", status: "shipped", ticket: 1 },
-    { row: 3, from: 78, to: 100, label: "ILMUchat", status: "inflight", ticket: 2 },
-  ];
-  const CP_LINKS = [[0, 1], [1, 2], [2, 3], [2, 4]]; // source bar → bar that depends on it
-  const CP_ROW = 24, CP_PITCH = 38;
-  const cpHTML = `
-    <figure class="cp" aria-label="How the programmes connect (schematic)" style="height:${3 * CP_PITCH + CP_ROW}px">
-      ${CP.map((b, i) => `<button type="button" class="cp-bar ${b.status}" style="left:${b.from}%; width:${b.to - b.from}%; top:${b.row * CP_PITCH}px; --i:${i}" data-ticket="${b.ticket}"><span class="cp-full">${esc(b.label)}</span><span class="cp-short">${esc(b.short || b.label)}</span></button>`).join("")}
-      ${CP_LINKS.map(([s, t], i) => `<i class="cp-link" style="left:${CP[t].from}%; top:${CP[s].row * CP_PITCH + CP_ROW}px; height:${(CP[t].row - CP[s].row) * CP_PITCH - CP_ROW}px; --i:${i}"></i>`).join("")}
+  /* the critical path as a network diagram: boxes and arrows, not bars on a time axis (the career
+     chart below is the one timeline). Each box opens its ticket from the board. */
+  const netHTML = `
+    <figure class="net" aria-label="What each programme stood on: ${esc(NET.slice(0, 3).map((n) => n.name).join(" led to "))}. ${esc(prose(NET.slice(3).map((n) => n.name)))} all run on ILMU.">
+      ${NET.map((n, i) => {
+        const inner = (top) => `
+          <span class="ticket-top">${top}</span>
+          <strong class="net-name">${esc(n.name)}</strong>
+          <span class="net-stat">${esc(n.stat)}</span>
+          <span class="net-org">${esc(n.org)}</span>`;
+        if (n.ticket === undefined) {
+          return `<div class="net-node" style="--i:${i}">${inner(`<span class="ticket-id"><b class="dom">${esc(n.tag)}</b></span>`)}</div>`;
+        }
+        const col = BOARD_COLUMNS.find((c) => c.lane === TECH.highlights[n.ticket].lane);
+        return `<button type="button" class="net-node ${col.lane}" style="--i:${i}" data-ticket="${n.ticket}">${inner(
+          `<span class="ticket-id">KRM-${101 + n.ticket}</span><span class="ticket-status ${col.pillClass}">${col.pill}</span>`
+        )}</button>`;
+      }).join("")}
     </figure>`;
 
   /* the status report: the date and the RAG line are worked out live from the board */
@@ -425,8 +444,8 @@ function renderTech() {
     </section>
 
     <section class="section">
-      ${secHead("02", "Critical path", "Not to scale. Each bar opens its ticket.")}
-      ${cpHTML}
+      ${secHead("02", "Critical path", "What each programme stood on. Click a box for its ticket.")}
+      ${netHTML}
     </section>
 
     <section class="section">
@@ -474,20 +493,64 @@ function renderTech() {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); }
     });
   });
-  wireCriticalPath();
+  wireNet();
+  drawNet();
   wireBoardDrag();
   drawGanttDeps();
   fitGanttNotes();
 }
 
-/* hero plan: each bar opens the matching ticket from the board */
-function wireCriticalPath() {
-  document.querySelectorAll(".cp-bar").forEach((bar) =>
-    bar.addEventListener("click", () => {
-      const card = document.querySelector(`.ticket[data-modal="${bar.dataset.ticket}"]`);
+/* each box in the network diagram opens the matching ticket from the board */
+function wireNet() {
+  document.querySelectorAll("button.net-node").forEach((node) =>
+    node.addEventListener("click", () => {
+      const card = document.querySelector(`.ticket[data-modal="${node.dataset.ticket}"]`);
       if (card) card.click();
     })
   );
+}
+
+/* arrows between the boxes, drawn from where the boxes actually are. Side by side, an arrow leaves the
+   right edge and enters the left edge; stacked (phones), it runs down a rail on the left. */
+function drawNet() {
+  const g = document.querySelector(".net");
+  if (!g) return;
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "net-links");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(NS, "path");
+  svg.appendChild(path);
+  g.appendChild(svg);
+  const nodes = [...g.querySelectorAll(".net-node")];
+  const draw = () => {
+    if (!g.isConnected) return;
+    const gr = g.getBoundingClientRect();
+    svg.setAttribute("viewBox", `0 0 ${gr.width} ${gr.height}`);
+    const box = nodes.map((n) => {
+      const r = n.getBoundingClientRect();
+      return { l: r.left - gr.left, r: r.right - gr.left, y: (r.top + r.bottom) / 2 - gr.top };
+    });
+    let d = "";
+    for (const [s, t] of NET_LINKS) {
+      const a = box[s], b = box[t];
+      if (b.l > a.r + 8) {
+        const mid = (a.r + b.l) / 2;
+        d += `M${a.r} ${a.y}H${mid}V${b.y}H${b.l}`;
+      } else {
+        d += `M${a.l} ${a.y}H10V${b.y}H${b.l}`;
+      }
+      d += `M${b.l - 6} ${b.y - 3.5}L${b.l} ${b.y}L${b.l - 6} ${b.y + 3.5}`;
+    }
+    path.setAttribute("d", d);
+  };
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw); // boxes change size once the web fonts land
+  if ("ResizeObserver" in window) {
+    const ro = new ResizeObserver(() => (g.isConnected ? draw() : ro.disconnect())); // stop watching once the page re-renders
+    ro.observe(g);
+    nodes.forEach((n) => ro.observe(n));
+  }
 }
 
 /* board tickets can be picked up with a mouse, but status stays with the programme manager */
@@ -1055,7 +1118,7 @@ document.addEventListener("click", (e) => {
 
 /* ---------- scroll reveal + reading progress ---------- */
 
-const REVEAL = ".hero-tech-copy, .sec-h, .sec-note, .sec-h-arts, .kcol, .cp, .gantt, .skill-list, .cta-row, .show, .side-block, .stat, .cal-head, .cal-row:not(.cal-heads)";
+const REVEAL = ".hero-tech-copy, .sec-h, .sec-note, .sec-h-arts, .kcol, .net, .gantt, .skill-list, .cta-row, .show, .side-block, .stat, .cal-head, .cal-row:not(.cal-heads)";
 let revealIO = null;
 
 function initReveal() {
